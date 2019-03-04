@@ -1,0 +1,33 @@
+upstream upstream-assistant-bot {
+  ip_hash;
+  server assistantbot:80;
+}
+
+
+
+error_log /dev/stdout;
+
+
+server {
+    listen 80;
+    server_name assistant-bot.domain.com;
+
+    set_real_ip_from traefik;
+
+
+    location /webhook {
+        proxy_redirect     off;
+        proxy_set_header   Host $host;
+        proxy_set_header   X-Real-IP $remote_addr;
+        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Host $server_name;
+
+        allow 149.154.167.192/26;
+        allow 146.185.179.30;
+        deny all;
+
+        proxy_pass http://upstream-assistant-bot/webhook;
+
+    }
+
+}

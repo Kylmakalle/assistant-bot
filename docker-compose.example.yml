@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  mongodb:
+    image: mongo
+    restart: always
+    container_name: "assistantbot-mongodb"
+    environment:
+    - MONGO_DATA_DIR=/data/db
+    - MONGO_LOG_DIR=/dev/null
+    volumes:
+    - dbdata:/data/db
+    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    ports:
+    - 127.0.0.1:27017:27017
+    networks:
+    - nw
+
+  bot:
+    container_name: "assistantbot"
+    build: .
+    restart: always
+    volumes:
+    - ".:/usr/src/bot"
+    command: "python3 bot.py" #"sh -ac 'make build; python3 bot.py'"
+    env_file: production.env
+    networks:
+    - nw
+    - proxy
+
+  nginx:
+    container_name: "assistantbot-nginx"
+    image: "nginx"
+    restart: always
+    volumes:
+    - ./nginx:/etc/nginx/conf.d
+    networks:
+    - proxy
+    - nw
+    labels:
+    - "traefik.enable=true"
+    - "traefik.backend=assistantbot-nginx"
+    - "traefik.frontend.rule=Host:assistant-bot.domain.com"
+    - "traefik.docker.network=proxy"
+
+
+volumes:
+  dbdata:
+
+networks:
+  nw:
+    driver: bridge
+  proxy:
+    external: true
