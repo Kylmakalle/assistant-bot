@@ -63,6 +63,7 @@ class Mixpanel:
                 else:
                     p['chat_id'] = aiogram_obj.message.chat.id
                     p['chat_type'] = aiogram_obj.message.chat.type
+                    p['chat_title'] = aiogram_obj.message.chat.title
                 all_properties.update(p)
             else:
                 all_properties.update(aiogram_obj.to_python())
