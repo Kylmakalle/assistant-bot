@@ -35,7 +35,7 @@ async def kick_timer(chat_id, user, messages_to_delete):
         await add_log(chat_id, user['id'], LogEvents.CAPTCHA_TIMEOUT)
         for message in messages_to_delete:
             try:
-                bot.delete_message(chat_id, message)
+                await bot.delete_message(chat_id, message)
             except:
                 pass
         await mp.track(user['id'], StatsEvents.CAPTCHA_TIMEOUT,
