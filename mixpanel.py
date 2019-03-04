@@ -75,7 +75,6 @@ class Mixpanel:
         }
         if meta:
             event.update(meta)
-        print('EVENT', event)
         json_message = self.json_dumps(event, cls=self._serializer)
         params = {
             'data': base64.b64encode(json_message.encode('utf8')).decode("utf-8"),
