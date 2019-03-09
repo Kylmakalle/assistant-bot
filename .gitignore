@@ -22,3 +22,5 @@ modules/echo
 
 private/*
 private_modules/*
+
+private-requirements.txt

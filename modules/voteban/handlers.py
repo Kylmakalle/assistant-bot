@@ -5,9 +5,10 @@ from aiogram.utils import exceptions
 from aiogram.utils.markdown import hbold, hitalic
 
 from core.db import db, ReturnDocument
+from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
-from modules.voteban.consts import voter
+from modules.voteban.consts import voter, LogEvents
 from modules.voteban.views import render_voteban_kb, screen_name
 
 
@@ -20,8 +21,8 @@ async def update_voteban(chat_id: int, user_id: int, u: dict) -> dict:
                                                  return_document=ReturnDocument.AFTER)
 
 
-@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message.message_id),
-                    commands=['report', 'ban'], commands_prefix='!/#')
+@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message),
+                    commands=['report', 'ban', 'voteban'], commands_prefix='!/#')
 async def cmd_report(m: types.Message, user: dict, chat: dict):
     vote_user = m.reply_to_message.from_user
     try:
@@ -30,7 +31,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         await m.reply('Не могу получить информацию о юзере.')
         return
 
-    if user_request.is_admin():
+    if (user_request.is_admin() or user.get('status', 0) >= 3) and not vote_user.is_bot:
         vote_user = vote_user.to_python()
         vote_user.update({'spamer': 1.0})
         usr = {'$set': vote_user}
@@ -69,21 +70,26 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
             await m.reply('Пользователя нет в чате.')
             return
 
-        if user_in_chat.is_admin():
+        if user_in_chat.is_admin() or user.get('status', 0) >= 3:
             await m.reply(f"{hitalic('Баню пользователя')} {screen_name(m.from_user)} =)")
             return
 
         voteban = await get_voteban(chat['id'], vote_user.id)
+        new_vb = False
         if not voteban:
+            new_vb = True
             voteban = {'user_id': vote_user.id, 'chat_id': chat['id'], 'votes': [],
                        'active': True}
             await db.votebans.insert_one(voteban)
 
         kb = render_voteban_kb(voteban)
-        await bot.send_message(chat['id'],
-                               f"{hbold('Voteban')} для {screen_name(vote_user)}" + '\n\n' +
-                               f"{hbold('Внимание!')} Ложные воутбаны влияют на значимость ваших репортов.",
-                               reply_to_message_id=m.reply_to_message.message_id, reply_markup=kb)
+        vb_msg = await bot.send_message(chat['id'],
+                                        f"{hbold('Voteban')} для {screen_name(vote_user)}" + '\n\n' +
+                                        f"{hbold('Внимание!')} Ложные воутбаны влияют на значимость ваших репортов.",
+                                        reply_to_message_id=m.reply_to_message.message_id, reply_markup=kb)
+        if new_vb:
+            await log(event=LogEvents.VOTEBAN, chat=chat, user=user, message_id=vb_msg.message_id,
+                      text_kwargs={'vote_for': f"{screen_name(vote_user.to_python())} [#id{user['id']}]"})
         await mp.track(m.from_user.id, StatsEvents.VOTEBAN_CALL, m)
 
 
@@ -94,7 +100,7 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
         user_request = await bot.get_chat_member(chat['id'], c.from_user.id)
     except:
         return
-    if user_request.is_admin():
+    if user_request.is_admin() or user.get('status', 0) >= 3:
         if voteban['active']:
             vote_user = await db.users.find_one({'id': int(callback_data['user_id'])})
             vote_user.update({'spamer': 1.0})

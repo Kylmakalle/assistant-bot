@@ -82,9 +82,12 @@ class UpdatesLoggerMiddleware(BaseMiddleware):
         if update.callback_query:
             from_user = update.callback_query.from_user
             from_chat = update.callback_query.message.chat
-        else:
+        elif update.message:
             from_user = update.message.from_user
             from_chat = update.message.chat
+        elif update.edited_message:
+            from_user = update.edited_message.from_user
+            from_chat = update.edited_message.chat
 
         data['user'] = await update_user(from_user)
 

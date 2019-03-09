@@ -42,3 +42,5 @@ kick_delay = get_value('KICK_DELAY', 30, int)
 
 # Metrics
 mixpanel_key = get_value('MIXPANEL_KEY', '')
+
+log_channel = get_value('LOG_CHANNEL', 0, int)

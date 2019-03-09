@@ -14,8 +14,10 @@ from modules.captcha_button.utils import get_welcome_message
 from modules.voteban.views import screen_name
 
 
-async def add_log(chat_id, user_id, event):
+async def add_log(chat_id, user_id, event, **kwargs):
     l = {'date': datetime.utcnow(), 'event': event}
+    if kwargs:
+        l.update(kwargs)
     return await db.log.find_one_and_update(dict(chat_id=chat_id, user_id=user_id),
                                             {'$push': {'log': l}}, upsert=True, return_document=ReturnDocument.AFTER)
 
