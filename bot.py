@@ -29,7 +29,7 @@ def main():
     if config.use_webhook:
         misc.runner.start_webhook(**config.webhook_server)
     else:
-        misc.runner.start_polling()
+        misc.runner.start_polling(timeout=0)
 
 
 if __name__ == '__main__':
