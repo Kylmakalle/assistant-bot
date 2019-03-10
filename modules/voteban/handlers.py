@@ -44,7 +44,10 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         except:
             pass
         await m.reply('Пользователь был забанен и помечен как спамер. Спасибо!')
-
+        try:
+            await bot.delete_message(m.chat.id, m.reply_to_message.message_id)
+        except:
+            pass
         await add_log(chat['id'], vote_user['id'], LogEvents.UNBAN, by=m.from_user.id)
         await log(event=LogEvents.BAN, chat=chat, user=user, message_id=m.message_id, admin=user)
         await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
