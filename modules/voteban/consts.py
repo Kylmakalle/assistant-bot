@@ -7,3 +7,4 @@ from modules.captcha_button.consts import LogEvents
 
 class LogEvents(LogEvents):
     VOTEBAN = 'voteban'
+    BAN = 'BAN'

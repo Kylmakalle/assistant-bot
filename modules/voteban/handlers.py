@@ -8,6 +8,7 @@ from core.db import db, ReturnDocument
 from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
+from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents
 from modules.voteban.views import render_voteban_kb, screen_name
 
@@ -37,8 +38,15 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         usr = {'$set': vote_user}
         await db.users.find_one_and_update({'_id': vote_user['id']}, usr, upsert=True,
                                            return_document=ReturnDocument.AFTER)
-        await update_voteban(chat['id'], user['id'], {'$set': {'active': False, 'confirmed': True}})
-        await m.reply('Пользователь помечен как спамер. Спасибо!')
+        await update_voteban(chat['id'], vote_user['id'], {'$set': {'active': False, 'confirmed': True}})
+        try:
+            await bot.kick_chat_member(chat['id'], vote_user['id'])
+        except:
+            pass
+        await m.reply('Пользователь был забанен и помечен как спамер. Спасибо!')
+
+        await add_log(chat['id'], vote_user['id'], LogEvents.UNBAN, by=m.from_user.id)
+        await log(event=LogEvents.BAN, chat=chat, user=user, message_id=m.message_id, admin=user)
         await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
     else:
         if m.from_user.id == vote_user.id:
