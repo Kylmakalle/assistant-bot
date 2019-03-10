@@ -97,7 +97,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
                                         reply_to_message_id=m.reply_to_message.message_id, reply_markup=kb)
         if new_vb:
             await log(event=LogEvents.VOTEBAN, chat=chat, user=user, message_id=vb_msg.message_id,
-                      text_kwargs={'vote_for': f"{screen_name(vote_user.to_python())} [#id{user['id']}]"})
+                      text_kwargs={'vote_for': f"{screen_name(vote_user.to_python())} [#id{vote_user.id}]"})
         await mp.track(m.from_user.id, StatsEvents.VOTEBAN_CALL, m)
 
 
