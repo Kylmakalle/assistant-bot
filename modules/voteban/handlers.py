@@ -49,7 +49,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         except:
             pass
         await add_log(chat['id'], vote_user['id'], LogEvents.BAN, by=m.from_user.id)
-        await log(event=LogEvents.BAN, chat=chat, user=user, message_id=m.message_id, admin=user)
+        await log(event=LogEvents.BAN, chat=chat, user=vote_user, message_id=m.message_id, admin=user)
         await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
     else:
         if m.from_user.id == vote_user.id:
