@@ -127,6 +127,8 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
             text = 'Воутбан завершён, пользователь был забанен.'
             await c.message.edit_text(text=c.message.html_text + '\n\n' + hitalic(text))
             await c.answer(text='Пользователь был забанен!')
+            await add_log(chat['id'], vote_user['id'], LogEvents.BAN, by=c.from_user.id)
+            await log(event=LogEvents.BAN, chat=chat, user=vote_user, message_id=c.message.message_id, admin=user)
             await mp.track(c.from_user.id, StatsEvents.VOTEBAN_CONFIRM, c)
         else:
             if voteban['confirmed']:
