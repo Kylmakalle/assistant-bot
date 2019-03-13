@@ -40,7 +40,9 @@ async def update_user(from_user, update_visit=True):
                 user['first_name'] = quote_html(user['first_name'])
             if user.get('last_name'):
                 user['last_name'] = quote_html(user['last_name'])
-            usr = {'$set': from_user}
+            if update_visit:
+                user.update({'last_visit': datetime.utcnow()})
+            usr = {'$set': user}
             user = await db.users.find_one_and_update({'_id': user['id']}, usr, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
     else:
