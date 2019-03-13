@@ -89,7 +89,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         new_vb = False
         if not voteban:
             new_vb = True
-            voteban = {'user_id': vote_user.id, 'chat_id': chat['id'], 'votes': [],
+            voteban = {'user_id': vote_user.id, 'chat_id': chat['id'], 'votes': [{'user_id': user['id']}],
                        'active': True}
             await db.votebans.insert_one(voteban)
 
@@ -118,7 +118,7 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
             usr = {'$set': vote_user}
             await db.users.find_one_and_update({'_id': vote_user['id']}, usr, upsert=True,
                                                return_document=ReturnDocument.AFTER)
-            await update_voteban(chat['id'], user['id'], {'$set': {'active': False, 'confirmed': True}})
+            await update_voteban(chat['id'], vote_user['id'], {'$set': {'active': False, 'confirmed': True}})
             try:
                 await bot.kick_chat_member(int(callback_data['chat_id']), int(callback_data['user_id']))
             except:
