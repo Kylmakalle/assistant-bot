@@ -9,7 +9,8 @@ def form_log(chat: dict, user: dict, event: str, message_id: int = None, admin: 
     text = f'#{event.upper().replace("-", "_")}\n'
     if admin:
         text += f"• {hbold('Admin:')} {screen_name(admin, tag=False)} [#id{admin['id']}]" + '\n'
-    text += f"• {hbold('Chat:')} {chat['title']} [#chat{abs(chat['id'])}]" + '\n'
+    if chat:
+        text += f"• {hbold('Chat:')} {chat['title']} [#chat{abs(chat['id'])}]" + '\n'
     text += f"• {hbold('User:')} {screen_name(user)} [#id{user['id']}]" + '\n'
     if kwargs:
         for kwarg in kwargs:
@@ -29,8 +30,11 @@ async def send_log(*args, **kwargs):
 
 async def log(text='Logged event', event='event', chat: dict = None, user: dict = None, admin: dict = None,
               message_id: int = None,
-              log_ch: [list, int] = None, text_kwargs: dict = None):
-    log_kwargs = dict(disable_web_page_preview=True)
+              log_ch: [list, int] = None, text_kwargs: dict = None, log_kwargs: dict = None):
+    if not log_kwargs:
+        log_kwargs = {}
+    if not 'disable_web_page_preview' in log_kwargs:
+        log_kwargs.update(dict(disable_web_page_preview=True))
     if not text_kwargs:
         text_kwargs = {}
     if chat and user:
