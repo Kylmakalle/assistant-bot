@@ -1,32 +1,45 @@
-from random import randint
+import random
+import string
+import xml.etree.cElementTree
 
-from aiogram.utils.markdown import quote_html
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.utils.markdown import hitalic
+
+from core.db import db
+from modules.captcha_button.consts import captcha_cb
+from modules.voteban.views import screen_name
+
+EMOJI_DATA = []
+
+# Preload emojis
+root = xml.etree.ElementTree.parse('modules/captcha_button/annotations/ru.xml').getroot()
+annotations = root[1]
+for child in annotations:
+    if not child.attrib.get('type', '') == 'tts':
+        continue
+    EMOJI_DATA.append({'emoji': child.attrib['cp'], 'description': child.text})
+
+MAX_EMOJIS = 5
 
 
-def random_equation():
-    num_a = randint(-15, 15)
-    num_b = randint(-10, 10)
-    answer = num_a + num_b
-    fake_answer = randint(-25, 25)
-    while fake_answer == answer:
-        fake_answer = randint(-25, 25)
-    return {'a': num_a, 'b': num_b, 'answer': answer, 'fake_answer': fake_answer}
+def genkey():
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
 
 
-def get_welcome_message(chat, user, chat_db=None):
-    if chat_db and chat_db.get('welcome_message'):
-        return {'message': chat_db['welcome_message'].format(USER_ID=user['id'], FIRST_NAME=user['first_name'],
-                                                             TITLE=chat['title'],
-                                                             VAR_A=chat_db['welcome_var_a'],
-                                                             VAR_B=chat_db['welcome_var_b']),
-                'VAR_A': chat_db['welcome_var_a'],
-                'VAR_B': chat_db['welcome_var_b'], 'type': 'themed'}
-    else:
-        equation = random_equation()
-        sample_welcome_message = 'Привет, <a href="tg://user?id={}">{}</a>! Добро пожаловать в <b>{}</b>.\n' \
-                                 'Сколько будет {} + {}?'.format(user['id'], user['first_name'], quote_html(chat.title),
-                                                                 equation['a'], equation['b'],
-                                                                 VAR_A=equation['answer'],
-                                                                 VAR_B=equation['fake_answer'])
-        return {'message': sample_welcome_message, 'VAR_A': equation['answer'], 'VAR_B': equation['fake_answer'],
-                'type': 'sample'}
+async def get_welcome_message(user, title, join_msg_id):
+    emojis = random.sample(EMOJI_DATA, MAX_EMOJIS)
+    for emoji in emojis:
+        emoji['hash'] = genkey()
+    answer = random.sample(emojis, 1)[0]
+    sample_welcome_message = 'Привет, {}! Добро пожаловать в <b>{}</b>.\n'.format(screen_name(user), title)
+    sample_welcome_message += 'Выбери эмодзи по описанию: ' + hitalic(
+        answer['description'].capitalize())
+    kb = InlineKeyboardMarkup(row_width=MAX_EMOJIS)
+    ch = {'user_id': user['id'], 'answer': answer['hash'], 'join_msg_id': join_msg_id}
+    challenge = await db.c_challenges.insert_one(ch)
+
+    kb.add(*[InlineKeyboardButton(emoji['emoji'], callback_data=
+    captcha_cb.new(user_id=str(user['id']),
+                   challenge=str(challenge.inserted_id),
+                   answer=emoji['hash'])) for emoji in emojis])
+    return sample_welcome_message, kb

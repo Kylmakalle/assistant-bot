@@ -17,3 +17,4 @@ class StatsEvents:
     JOIN_CHAT = 'join-chat'
     CAPTCHA_TIMEOUT = 'captcha-timeout'
     CAPTCHA_PASSED = 'captcha-passed'
+    CAPTCHA_ERROR = 'captcha-error'
