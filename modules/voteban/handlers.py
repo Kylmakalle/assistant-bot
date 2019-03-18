@@ -18,7 +18,7 @@ async def get_voteban(chat_id: int, user_id: int) -> dict:
 
 
 async def update_voteban(chat_id: int, user_id: int, u: dict) -> dict:
-    return await db.votebans.find_one_and_update({'user_id': user_id, 'chat_id': chat_id}, u,
+    return await db.votebans.find_one_and_update({'user_id': user_id, 'chat_id': chat_id, 'active': True}, u,
                                                  return_document=ReturnDocument.AFTER)
 
 
