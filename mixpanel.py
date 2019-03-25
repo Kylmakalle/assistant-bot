@@ -1,7 +1,4 @@
-try:
-    import ujson as json
-except ImportError:
-    import json
+import json
 import base64
 import datetime
 import time

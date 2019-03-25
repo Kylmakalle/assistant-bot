@@ -6,6 +6,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.types import ParseMode
 from aiogram.utils.executor import Executor
+import sentry_sdk
 
 from core import config
 from core.packages import PackagesLoader
@@ -27,3 +28,6 @@ loader = PackagesLoader()
 dp.middleware.setup(LoggingMiddleware('bot'))
 
 mp = Mixpanel(config.mixpanel_key)
+
+if config.sentry_url:
+    sentry_sdk.init(config.sentry_url)

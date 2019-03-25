@@ -1,12 +1,18 @@
 import logging
-import traceback
 
 from core.misc import dp, mp
+from aiogram.types import Update
+
+try:
+    import ujson as json
+except ImportError:
+    import json
+from core.config import sentry_url
 from core.stats import StatsEvents
 
 
 @dp.errors_handler()
-async def all_errors_handler(update, e):
+async def all_errors_handler(update: Update, e):
     text = '[DEBUG] Unhandled Error occurred, this is logged'
     if hasattr(update, 'message') and (update.message or update.edited_message):
         u = update.message or update.edited_message
@@ -26,7 +32,8 @@ async def all_errors_handler(update, e):
             pass
     else:
         u = None
-    logging.error(f'The update was: {update}')
-    logging.exception(traceback.print_exc())
-    await mp.track(0, StatsEvents.ERROR, u)
+    logging.exception(f'The update was: {json.dumps(update.to_python(), indent=4)}', exc_info=True)
+
+    if not sentry_url:
+        await mp.track(0, StatsEvents.ERROR, u)
     return True
