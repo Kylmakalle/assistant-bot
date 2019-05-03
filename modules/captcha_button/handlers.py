@@ -50,7 +50,7 @@ async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new
         captcha_passed_action = await get_user_captcha_passed(n_c_m['id'], m.chat.id)
         if not captcha_passed_action:
             welcome, kb = await get_welcome_message(n_c_m, chat['title'], m.message_id)
-            welcome_msg = await bot.send_message(m.chat.id, welcome.format(), reply_markup=kb)
+            welcome_msg = await bot.send_message(m.chat.id, welcome, reply_markup=kb)
             await bot.restrict_chat_member(m.chat.id, n_c_m['id'], can_send_messages=False,
                                            can_send_media_messages=False, can_send_other_messages=False,
                                            can_add_web_page_previews=False)
