@@ -3,6 +3,7 @@ from aiogram.utils.markdown import hbold, hlink
 from core.config import log_channel
 from core.misc import bot
 from modules.voteban.views import screen_name
+import logging
 
 
 def form_log(chat: dict, user: dict, event: str, message_id: int = None, admin: dict = None, **kwargs):
@@ -24,13 +25,13 @@ def form_log(chat: dict, user: dict, event: str, message_id: int = None, admin: 
 async def send_log(*args, **kwargs):
     try:
         await bot.send_message(*args, **kwargs)
-    except Exception as e:
-        pass
+    except:
+        logging.exception(f'ERROR SENDING LOG: {args}, {kwargs}', exc_info=True)
 
 
 async def log(text='Logged event', event='event', chat: dict = None, user: dict = None, admin: dict = None,
               message_id: int = None,
-              log_ch: [list, int] = None, text_kwargs: dict = None, log_kwargs: dict = None):
+              log_ch: [list, int, str] = None, text_kwargs: dict = None, log_kwargs: dict = None):
     if not log_kwargs:
         log_kwargs = {}
     if not 'disable_web_page_preview' in log_kwargs:
@@ -44,4 +45,8 @@ async def log(text='Logged event', event='event', chat: dict = None, user: dict 
     if chat.get('log_ch'):
         await send_log(chat_id=chat['log_ch'], text=text, **log_kwargs)
     if log_ch:
-        await send_log(chat_id=log_ch, text=text, **log_kwargs)
+        if isinstance(log_ch, int) or isinstance(log_ch, str):
+            await send_log(chat_id=log_ch, text=text, **log_kwargs)
+        elif isinstance(log_ch, list):
+            for chid in log_ch:
+                await send_log(chat_id=chid, text=text, **log_kwargs)
