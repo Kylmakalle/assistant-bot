@@ -8,7 +8,7 @@ from core.db import db, ReturnDocument, ObjectId
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
 from modules.captcha_button.consts import captcha_cb, LogEvents
-from modules.captcha_button.utils import get_welcome_message
+from modules.captcha_button.utils import get_welcome_message, get_user_msgs_to_delete_date
 from modules.voteban.views import screen_name
 
 
@@ -42,9 +42,17 @@ async def kick_timer(chat_id, user, messages_to_delete):
                        properties={'chat_id': chat_id, 'chat_type': 'supergroup'})
 
 
+async def try_delete_msg(chat_id, message_id):
+    try:
+        return await bot.delete_message(chat_id, message_id)
+    except:
+        pass
+
+
 @dp.message_handler(content_types=types.ContentType.NEW_CHAT_MEMBERS)
 async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new_chat_members: list):
     kick_tasks = []
+    delete_tasks = []
     for n_c_m in new_chat_members:
         await add_log(chat['id'], n_c_m['id'], LogEvents.JOINED)
         captcha_passed_action = await get_user_captcha_passed(n_c_m['id'], m.chat.id)
@@ -54,6 +62,10 @@ async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new
             await bot.restrict_chat_member(m.chat.id, n_c_m['id'], can_send_messages=False,
                                            can_send_media_messages=False, can_send_other_messages=False,
                                            can_add_web_page_previews=False)
+            passed_updates = await get_user_msgs_to_delete_date(m.chat.id, n_c_m['id'], int(m.date.timestamp()),
+                                                                m.message_id)
+            for i in passed_updates:
+                delete_tasks.append(create_task(try_delete_msg(chat['id'], i['message']['message_id'])))
             kick_tasks.append(create_task(kick_timer(m.chat.id, n_c_m, [welcome_msg.message_id, m.message_id])))
             await mp.track(user['id'], StatsEvents.JOIN_CHAT, m)
         else:
@@ -65,8 +77,8 @@ async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new
 
 async def get_user_unrestrict_params(user_id, chat_id=None):
     # todo: Automated trust factor system
-    return dict(can_send_messages=True, can_send_media_messages=True, can_send_other_messages=True,
-                can_add_web_page_previews=True)
+    return dict(can_send_messages=True, can_send_media_messages=False, can_send_other_messages=False,
+                can_add_web_page_previews=False)
 
 
 @dp.callback_query_handler(captcha_cb.filter())
