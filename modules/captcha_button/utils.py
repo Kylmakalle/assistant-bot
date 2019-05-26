@@ -43,3 +43,11 @@ async def get_welcome_message(user, title, join_msg_id):
                    challenge=str(challenge.inserted_id),
                    answer=emoji['hash'])) for emoji in emojis])
     return sample_welcome_message, kb
+
+
+async def get_user_msgs_to_delete_date(chat_id, user_id, date, ignore_id=None):
+    q = {'message.chat.id': chat_id, 'message.from.id': user_id, 'message.date': {'$gte': date}}
+    if ignore_id:
+        q.update({'message.message_id': {'$ne': ignore_id}})
+    updates = await db.updates.find(q).to_list(None)
+    return updates

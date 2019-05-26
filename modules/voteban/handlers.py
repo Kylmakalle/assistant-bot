@@ -77,7 +77,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
             await m.reply('Не могу получить информацию о юзере.')
             return
 
-        if not user_in_chat.is_member():
+        if user_in_chat.status == types.ChatMemberStatus.KICKED:
             await m.reply('Пользователя нет в чате.')
             return
 
