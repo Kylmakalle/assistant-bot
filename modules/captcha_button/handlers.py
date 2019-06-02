@@ -54,7 +54,7 @@ async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new
     kick_tasks = []
     delete_tasks = []
     for n_c_m in new_chat_members:
-        await add_log(chat['id'], n_c_m['id'], LogEvents.JOINED)
+        # await add_log(chat['id'], n_c_m['id'], LogEvents.JOINED)
         captcha_passed_action = await get_user_captcha_passed(n_c_m['id'], m.chat.id)
         if not captcha_passed_action:
             welcome, kb = await get_welcome_message(n_c_m, chat['title'], m.message_id)
@@ -77,8 +77,8 @@ async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new
 
 async def get_user_unrestrict_params(user_id, chat_id=None):
     # todo: Automated trust factor system
-    return dict(can_send_messages=True, can_send_media_messages=False, can_send_other_messages=False,
-                can_add_web_page_previews=False)
+    return dict(can_send_messages=True, can_send_media_messages=True, can_send_other_messages=True,
+                can_add_web_page_previews=True)
 
 
 @dp.callback_query_handler(captcha_cb.filter())
