@@ -18,6 +18,10 @@ services:
 
   bot:
     container_name: "assistantbot"
+    logging:
+      options:
+        max-size: "100M"
+        max-file: "10"
     build: .
     restart: always
     volumes:
