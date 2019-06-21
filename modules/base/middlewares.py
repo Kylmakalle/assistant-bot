@@ -32,17 +32,18 @@ async def update_user(from_user, update_visit=True):
                 user.update({'last_visit': datetime.utcnow()})
             await db.users.insert_one(user)
         else:
-            user['last_visit'] = datetime.utcnow()
             from_user = from_user.to_python()
             if 'last_name' not in from_user:
                 from_user['last_name'] = None
+            if 'username' not in from_user:
+                from_user['username'] = None
             if user.get('first_name'):
-                user['first_name'] = quote_html(user['first_name'])
+                from_user['first_name'] = quote_html(from_user['first_name'])
             if user.get('last_name'):
-                user['last_name'] = quote_html(user['last_name'])
+                from_user['last_name'] = quote_html(from_user['last_name'])
             if update_visit:
-                user.update({'last_visit': datetime.utcnow()})
-            usr = {'$set': user}
+                from_user.update({'last_visit': datetime.utcnow()})
+            usr = {'$set': from_user}
             user = await db.users.find_one_and_update({'_id': user['id']}, usr, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
     else:
