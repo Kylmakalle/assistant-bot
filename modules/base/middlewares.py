@@ -37,9 +37,9 @@ async def update_user(from_user, update_visit=True):
                 from_user['last_name'] = None
             if 'username' not in from_user:
                 from_user['username'] = None
-            if user.get('first_name'):
+            if from_user.get('first_name'):
                 from_user['first_name'] = quote_html(from_user['first_name'])
-            if user.get('last_name'):
+            if from_user.get('last_name'):
                 from_user['last_name'] = quote_html(from_user['last_name'])
             if update_visit:
                 from_user.update({'last_visit': datetime.utcnow()})
