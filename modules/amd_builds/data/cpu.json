@@ -1,0 +1,46 @@
+{
+  "manufacturers": [
+    {
+      "Intel": {
+        "models": [
+          "RTX SUPER",
+          "RTX 2080 Ti",
+          "RTX 2080",
+          "RTX 2070",
+          "RTX 2060",
+          "GTX 1660 Ti",
+          "GTX 1660",
+          "GTX 1650",
+          "GTX 1080 Ti",
+          "GTX 1080",
+          "GTX 1070 Ti",
+          "GTX 1070",
+          "GTX 1060",
+          "GTX 1050 Ti",
+          "GTX 1050",
+          "GT1030"
+        ],
+        "outdated_models": [
+          ""
+        ]
+      }
+    },
+    {
+      "AMD": {
+        "models": [
+          "RX 5700",
+          "Radeon VII",
+          "RX Vega",
+          "RX 590",
+          "RX 580",
+          "RX 570",
+          "RX 560",
+          "RX 550",
+          "RX 480",
+          "RX 470",
+          "RX 460"
+        ]
+      }
+    }
+  ]
+}
