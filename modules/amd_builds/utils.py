@@ -64,7 +64,7 @@ async def get_build(amount=100):
         photo = None
         while True:
             random_build = random.choice(builds)
-            print('RANDOMBUILD', random_build)
+            print('RANDOMBUILD', random_build['id'], random_build)
             photo = get_build_photo(random_build)
             if photo:
                 return {'photo': photo, 'title': random_build['title']}
@@ -80,8 +80,10 @@ def get_build_photo(build):
         pass
     if ex_source:
         try:
+            print('ex source')
             return build['media']['source']['url']
-        except:
+        except Exception as e:
+            print('error ex source', e)
             pass
     else:
         try:
