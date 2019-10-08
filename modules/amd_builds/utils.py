@@ -60,33 +60,36 @@ async def request_builds(amount):
 
 async def get_build(amount=100):
     builds = await request_builds(amount)
+    print(
+        'BUILDS AMOUNT', len(builds)
+    )
     if builds:
         photo = None
         while True:
             random_build = random.choice(builds)
-            print('RANDOMBUILD', random_build['id'], random_build)
+            print('RANDOMBUILD', random_build['id'])
             photo = get_build_photo(random_build)
             if photo:
+                print(random_build['id'], 'SENT')
                 return {'photo': photo, 'title': random_build['title']}
     else:
         return
 
 
 def get_build_photo(build):
-    ex_source = None
+    reddit_source = None
     try:
-        ex_source = build['media']['source']
+        reddit_source = build['media']['content']
     except:
         pass
-    if ex_source:
-        try:
-            print('ex source')
-            return build['media']['source']['url']
-        except Exception as e:
-            print('error ex source', e)
-            pass
-    else:
+    if reddit_source:
         try:
             return build['media']['content']
         except:
+            pass
+    else:
+        try:
+            return build['source']['url']
+        except Exception as e:
+            print('error ex source', e)
             pass

@@ -41,7 +41,7 @@ async def cmd_amd_build(m: types.Message, user: dict, chat: dict):
     sent = await m.reply(hitalic(random.choice(init_msgs) + '...'), reply=False)
 
     try:
-        build = await get_build(amount=100)
+        build = await get_build(amount=150)
     except:
         build = None
 
