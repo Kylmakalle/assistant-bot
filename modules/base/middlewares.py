@@ -77,7 +77,7 @@ class UpdatesLoggerMiddleware(BaseMiddleware):
 
     async def on_pre_process_update(self, update: types.Update, data: dict):
         u = update.to_python()
-        pprint(u)
+        # pprint(u)
         u.update({'_id': u['update_id']})
         await db.updates.insert_one(u)
 
@@ -114,6 +114,14 @@ class UpdatesLoggerMiddleware(BaseMiddleware):
         data['chat'] = chat
         # await mp.track(m.from_user.id, 'message', m)
 
+    async def on_pre_process_edited_message(self, m: types.Message, data: dict):
+        from_user = m.from_user
+        from_chat = m.chat
+        user = await db.users.find_one({'id': from_user.id})
+        data['user'] = user
+        chat = await db.chats.find_one({'id': from_chat.id})
+        data['chat'] = chat
+
     async def on_pre_process_callback_query(self, c: types.CallbackQuery, data: dict):
         from_user = c.from_user
         from_chat = c.message.chat
@@ -124,5 +132,5 @@ class UpdatesLoggerMiddleware(BaseMiddleware):
         # await mp.track(c.from_user.id, 'callback', c)
 
 
-logging_ms = dp.middleware.setup(LoggingMiddleware())
+# logging_ms = dp.middleware.setup(LoggingMiddleware())
 update_logger = dp.middleware.setup(UpdatesLoggerMiddleware())
