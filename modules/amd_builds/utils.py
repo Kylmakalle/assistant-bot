@@ -66,6 +66,7 @@ async def get_build(amount=100):
     if builds:
         photo = None
         while True:
+            random.shuffle(builds)
             random_build = random.choice(builds)
             print('RANDOMBUILD', random_build['id'])
             photo = get_build_photo(random_build)
