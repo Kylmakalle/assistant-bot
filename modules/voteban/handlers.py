@@ -9,7 +9,7 @@ from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
 from modules.captcha_button.handlers import add_log
-from modules.voteban.consts import voter, LogEvents
+from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
 
 
@@ -20,6 +20,14 @@ async def get_voteban(chat_id: int, user_id: int) -> dict:
 async def update_voteban(chat_id: int, user_id: int, u: dict) -> dict:
     return await db.votebans.find_one_and_update({'user_id': user_id, 'chat_id': chat_id, 'active': True}, u,
                                                  return_document=ReturnDocument.AFTER)
+
+
+async def cmd_fun_report(m: types.Message, user: dict, chat: dict):
+    try:
+        await m.delete()
+    except:
+        pass
+    await bot.send_message(m.chat.id, get_admin_report_response(), reply_to_message_id=m.reply_to_message.message_id)
 
 
 @dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message),
@@ -33,6 +41,8 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         return
 
     if (user_request.is_admin() or user.get('status', 0) >= 3) and not vote_user.is_bot:
+        await cmd_fun_report(m, user, chat)
+        return
         vote_user = vote_user.to_python()
         vote_user.update({'spamer': 1.0})
         usr = {'$set': vote_user}

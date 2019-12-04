@@ -32,7 +32,7 @@ async def get_welcome_message(user, title, join_msg_id):
         emoji['hash'] = genkey()
     answer = random.sample(emojis, 1)[0]
     sample_welcome_message = 'Привет, {}! Добро пожаловать в <b>{}</b>.\n'.format(screen_name(user), title)
-    sample_welcome_message += 'Выбери эмодзи по описанию: ' + hitalic(
+    sample_welcome_message += 'Выбери эмодзи: ' + hitalic(
         answer['description'].capitalize())
     kb = InlineKeyboardMarkup(row_width=MAX_EMOJIS)
     ch = {'user_id': user['id'], 'answer': answer['hash'], 'join_msg_id': join_msg_id}
