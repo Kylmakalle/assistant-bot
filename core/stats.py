@@ -9,6 +9,7 @@ class StatsEvents:
     VOTEBAN_VOTE = 'voteban-vote'
     VOTEBAN_UNVOTE = 'voteban-unvote'
     ADMIN_BAN = 'admin-ban'
+    ADMIN_KICK = 'admin-kick'
 
     # nsfw
     NSFW = 'nsfw'

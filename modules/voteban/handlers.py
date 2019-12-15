@@ -41,7 +41,8 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         return
 
     if (user_request.is_admin() or user.get('status', 0) >= 3) and not vote_user.is_bot:
-        if 'report' in m.get_command():
+        check_cmd = m.text.replace('!', '').replace('/', '').replace('#', '')
+        if (check_cmd or '').lower().startswith('report'):
             await cmd_fun_report(m, user, chat)
             return
         vote_user = vote_user.to_python()

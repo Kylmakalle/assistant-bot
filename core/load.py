@@ -11,6 +11,7 @@ def load_modules():
         # 'get',  # GETs in chats
         'captcha_button',  # Captcha for new joined users
         'voteban',  # Voteban in chats
+        'admin',  # Small admin commands
         'nsfw',  # Checking media for nsfw
         'amd_builds',  # AMD Builds from reddit
         'tail',  # Handle all unhandled actions
