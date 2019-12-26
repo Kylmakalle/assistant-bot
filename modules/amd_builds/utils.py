@@ -78,19 +78,18 @@ async def get_build(amount=100):
 
 
 def get_build_photo(build):
-    reddit_source = None
+    from pprint import pprint
+    pprint(build)
+
     try:
-        reddit_source = build['media']['content']
-    except:
-        pass
-    if reddit_source:
-        try:
+        if build['media']['content']['type'] != 'embed':
             return build['media']['content']
-        except:
-            pass
-    else:
-        try:
-            return build['source']['url']
-        except Exception as e:
-            print('error ex source', e)
-            pass
+    except:
+        print('Error media-content')
+        pass
+
+    try:
+        return build['source']['url']
+    except:
+        print('Error source-url')
+        pass

@@ -11,6 +11,7 @@ from core.stats import StatsEvents
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
+from private_modules.autoban.utils import get_user_id
 
 
 @dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message),
@@ -75,3 +76,32 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
 async def cmd_kick(m: types.Message, user: dict, chat: dict):
     await m.reply(
         'Эта команда работает только ответом на сообщение.\nЧтобы она работала по-другому, надо сделать Pull request...')
+
+
+@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message),
+                    commands=['ban'], commands_prefix='!/#')
+async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
+    try:
+        user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
+    except:
+        await m.reply('Не могу получить информацию о юзере.')
+        return
+    if user_request.is_admin() or user.get('status', 0) >= 3:
+        uid = await get_user_id(m)
+        if uid != (await bot.get_me()).id:
+            if uid:
+                try:
+                    await bot.kick_chat_member(chat['id'], uid)
+                except:
+                    pass
+
+                ban_user = await db.users.find_one({'id': uid})
+
+                await m.reply('Пользователь был забанен. Спасибо!')
+                await add_log(chat['id'], uid, LogEvents.BAN, by=m.from_user.id)
+                await log(event=LogEvents.BAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user)
+                await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
+            else:
+                await m.reply('Такой тут не пробегал')
+    else:
+        await m.reply('Не-не ¯\_(ツ)_/¯')
