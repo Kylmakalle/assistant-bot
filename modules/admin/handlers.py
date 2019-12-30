@@ -87,7 +87,11 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
         await m.reply('Не могу получить информацию о юзере.')
         return
     if user_request.is_admin() or user.get('status', 0) >= 3:
-        uid = await get_user_id(m)
+        try:
+            uid = await get_user_id(m)
+        except:
+            await m.reply('<b>Кавоо?</b>')
+            return
         if uid != (await bot.get_me()).id:
             if uid:
                 try:
