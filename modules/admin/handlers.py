@@ -13,7 +13,22 @@ from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
 from private_modules.autoban.utils import get_user_id
 
+KICK_STICKERS = (
+    # daykick
+    'AgADVgIAArtXhwQ',
+    'AgADVQIAArtXhwQ',
+    'AgADVAIAArtXhwQ',
+    'AgADUwIAArtXhwQ',
 
+    # hw pack
+    'AgADLgQAAjgzwQk',
+    'AgADLwQAAjgzwQk',
+    'AgADMAQAAjgzwQk'
+)
+
+
+@dp.message_handler(lambda m: types.ChatType.is_group_or_super_group and m.reply_to_message
+                              and m.sticker.file_unique_id in KICK_STICKERS, content_types=['sticker'])
 @dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message),
                     commands=['kick'], commands_prefix='!/#')
 async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
