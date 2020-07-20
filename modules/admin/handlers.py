@@ -26,9 +26,12 @@ KICK_STICKERS = (
     'AgADMAQAAjgzwQk'
 )
 
+KICK_PACKS = ('daykick',)
+
 
 @dp.message_handler(lambda m: types.ChatType.is_group_or_super_group and m.reply_to_message
-                              and m.sticker.file_unique_id in KICK_STICKERS, content_types=['sticker'])
+                              and (m.sticker.set_name in KICK_PACKS or m.sticker.file_unique_id in KICK_STICKERS),
+                    content_types=['sticker'])
 @dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message),
                     commands=['kick'], commands_prefix='!/#')
 async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
