@@ -18,7 +18,7 @@ async def get_rates():
     global RATES_UPDATE
     if 'EUR' in RATES and 'USD' in RATES:
         if RATES_UPDATE:
-            if RATES_UPDATE + timedelta(hours=8) <= datetime.utcnow():
+            if RATES_UPDATE + timedelta(hours=8) >= datetime.utcnow():
                 return RATES
 
     fetched_rates = await fetch_rates()
@@ -26,12 +26,12 @@ async def get_rates():
         usd_price = fetched_rates['base']['840']['0']['sellValue']
     except KeyError:
         logging.exception(f'Error fetching price', exc_info=True)
-        usd_price = 67.03
+        usd_price = 73.08
     try:
         eur_price = fetched_rates['base']['978']['0']['sellValue']
     except KeyError:
         logging.exception(f'Error fetching price', exc_info=True)
-        eur_price = 72.93
+        eur_price = 86.48
 
     RATES_UPDATE = datetime.utcnow()
     RATES['EUR'] = eur_price
