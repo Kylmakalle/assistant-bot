@@ -8,7 +8,8 @@ from modules.nologi.utils import get_rates, ffloat, format_fiat
 
 
 @dp.message_handler(
-    commands=['nolog', 'nologi', 'nalog', 'nalogi', 'налог', 'нологи', 'нолохи', 'нолох', 'noloh', 'nolox', 'ploti', 'plati'],
+    commands=['nolog', 'nologi', 'nalog', 'nalogi', 'налог', 'нологи', 'нолохи', 'нолох', 'noloh', 'nolox', 'ploti',
+              'plati'],
     commands_prefix='!/')
 async def cmd_nolog(m: types.Message, user: dict, chat: dict):
     text = "Рассчёт таможенных пошлин для РФ" + '\n\n'
@@ -59,17 +60,20 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
 
                 total_overpay = (abs(nice_price + total_fee - nice_price) / nice_price) * 100.0
 
-                text = f"🤑 {hbold('Плоти нолохи.')}" \
-                       f"\nТаможенная пошлина с покупки на {format_fiat(currency, ffloat(nice_price))} ({format_fiat('RUB', ffloat(nice_price * rates[currency]))}) " \
-                       f"составит:\n\n{hbold(format_fiat(currency, ffloat(total_fee)))} " \
-                       f"({format_fiat('RUB', ffloat(total_fee * rates[currency]))})"#\n" \
-                       #f"Итоговая переплата {ffloat(total_overpay)}%"
-                #if total_overpay > 20:
-                #    text += ". " + hbold("Это больше чем НДС!")
+                text = f"🤑 {hbold('Плоти нолохи.')}"
 
-                text += "\n\nФормула: " + hitalic(
-                    f'Фикс. пошлина {format_fiat(currency, fix_fee)} + 15% от суммы превышения ({ffloat(nice_price)} - {ffloat(threshold)}) * 15% = {format_fiat(currency, ffloat(fee))})')
-                text += "\n\nБыстро сравнить цены можно на " + "hardprice.ru" + "\n" + \
+                text += f"\nТаможенная пошлина с покупки на {format_fiat(currency, ffloat(nice_price))} ({format_fiat('RUB', ffloat(nice_price * rates[currency]))}) " \
+                        f"составит: {format_fiat(currency, ffloat(total_fee))} " \
+                        f"({format_fiat('RUB', ffloat(total_fee * rates[currency]))})"  # \n" \
+                text += f"\n\nИтоговая стоимость: {hbold(format_fiat(currency, ffloat(nice_price + total_fee)))} ({format_fiat('RUB', ffloat((nice_price + total_fee) * rates[currency]))})"
+
+                text += f"\nИтоговая переплата: {ffloat(total_overpay)}%"
+                if total_overpay > 20:
+                    text += ". " + hbold("Это больше чем НДС!")
+
+                # text += "\n\nФормула: " + hitalic(
+                #    f'Фикс. пошлина {format_fiat(currency, fix_fee)} + 15% от суммы превышения ({ffloat(nice_price)} - {ffloat(threshold)}) * 15% = {format_fiat(currency, ffloat(fee))})')
+                text += "\nБыстро сравнить цены можно на " + "hardprice.ru" + "\n" + \
                         hlink("Подробнее о пошлине", "https://qwintry.com/ru/duty-calc")
             break
 

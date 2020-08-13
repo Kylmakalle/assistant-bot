@@ -56,6 +56,7 @@ def ffloat(value):
 
 
 def format_fiat(symbol, value):
+    value = '{:,}'.format(float(value) if '.' in value else int(value)).replace(',', ' ')
     pos = [value, symbol]
     if symbol == 'USD':
         pos[0] = '$'
