@@ -36,6 +36,8 @@ async def get_rates():
     RATES_UPDATE = datetime.utcnow()
     RATES['EUR'] = eur_price
     RATES['USD'] = usd_price
+    RATES['RUB'] = 1.0
+    RATES['RUR'] = 1.0
 
     return RATES
 
@@ -61,7 +63,7 @@ def format_fiat(symbol, value):
     if symbol == 'USD':
         pos[0] = '$'
         pos[1] = value
-    elif symbol == 'RUB':
+    elif symbol in ('RUB', 'RUR'):
         pos[0] = value
         pos[1] = 'руб.'
     elif symbol == 'EUR':

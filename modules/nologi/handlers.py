@@ -19,7 +19,7 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
 
     example_cmd = "Пример:" + " " + "/nolog 465.98" + '\n\n'
 
-    available_curs = "Доступные валюты: <b>EUR, USD</b>"
+    available_curs = "Доступные валюты: <b>EUR, USD, RUB/RUR</b>"
     about = "\n" + hitalic(
         "По курсу Сбербанка. Цена товара должна быть без учёта доставки. Посылки тяжелее 31кг считаются отдельно!") + " " + \
             hlink("Подробнее", "https://qwintry.com/ru/duty-calc")
@@ -40,7 +40,7 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
             except:
                 break
 
-            if currency.upper() not in ('USD', 'EUR',):
+            if currency.upper() not in ('USD', 'EUR', 'RUB', 'RUB'):
                 break
 
             currency = currency.upper()
@@ -48,6 +48,9 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
             threshold = 200
             if currency == 'USD':
                 threshold = rates['EUR'] / rates['USD'] * threshold
+
+            if currency in ('RUB', 'RUR',):
+                threshold = rates['EUR'] * threshold
 
             if nice_price <= threshold:
                 text = "✅ <b>Плотить не надо!</b>\nЦена меньше порога в {}".format(
@@ -60,12 +63,15 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
 
                 total_overpay = (abs(nice_price + total_fee - nice_price) / nice_price) * 100.0
 
+                # TODO: Disable rub for rub
+                other_curr = 'RUB'  # if currency not in ('RUB', 'RUR') else 'USD'
+
                 text = f"🤑 {hbold('Плоти нолохи.')}"
 
-                text += f"\nТаможенная пошлина с покупки на {format_fiat(currency, ffloat(nice_price))} ({format_fiat('RUB', ffloat(nice_price * rates[currency]))}) " \
+                text += f"\nТаможенная пошлина с покупки на {format_fiat(currency, ffloat(nice_price))} ({format_fiat(other_curr, ffloat(nice_price * rates[other_curr]))}) " \
                         f"составит: {format_fiat(currency, ffloat(total_fee))} " \
-                        f"({format_fiat('RUB', ffloat(total_fee * rates[currency]))})"  # \n" \
-                text += f"\n\nИтоговая стоимость: {hbold(format_fiat(currency, ffloat(nice_price + total_fee)))} ({format_fiat('RUB', ffloat((nice_price + total_fee) * rates[currency]))})"
+                        f"({format_fiat(other_curr, ffloat(total_fee * rates[other_curr]))})"  # \n" \
+                text += f"\n\nИтоговая стоимость: {hbold(format_fiat(currency, ffloat(nice_price + total_fee)))} ({format_fiat(other_curr, ffloat((nice_price + total_fee) * rates[other_curr]))})"
 
                 text += f"\nИтоговая переплата: {ffloat(total_overpay)}%"
                 if total_overpay > 20:
