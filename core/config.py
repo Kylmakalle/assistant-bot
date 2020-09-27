@@ -48,3 +48,5 @@ log_channel = get_value('LOG_CHANNEL', 0, int)
 sentry_url = get_value('SENTRY_URL', '')
 
 clarifai_token = get_value('CLARIFAI_TOKEN', '')
+
+allowed_chats = get_value('ALLOWED_CHATS', '').replace(' ', '').split(',')

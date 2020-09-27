@@ -5,10 +5,13 @@ from pprint import pprint
 from aiogram import types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.dispatcher.middlewares import BaseMiddleware
-from aiogram.utils.markdown import quote_html
+from aiogram.utils.markdown import quote_html, hlink
+from aiogram.dispatcher.handler import CancelHandler
+import random
 
 from core.db import db, ReturnDocument
 from core.misc import dp
+from core.config import allowed_chats
 
 logger = logging.getLogger('assistant-bot.base')
 logging.basicConfig(format=u'%(filename)+13s [ LINE:%(lineno)-4s] %(levelname)-8s [%(asctime)s] %(message)s',
@@ -133,5 +136,28 @@ class UpdatesLoggerMiddleware(BaseMiddleware):
         # await mp.track(c.from_user.id, 'callback', c)
 
 
+class PrivateBotMiddleware(BaseMiddleware):
+    contact_required_text = f"🔶 <b>Напоминаю</b>, что лучший чат про железо, ПК и технологии это {hlink('@ru2chhw', 'https://t.me/ru2chhw')}.\n\n" + \
+                            "Этот чат: {chat_title} #chat{chat_id}\n" + \
+                            "Админ бота: @Kylmakalle"
+
+    def __init__(self):
+        super(PrivateBotMiddleware, self).__init__()
+
+    async def on_pre_process_message(self, m: types.Message, data: dict):
+        if m.chat.type in ('group', 'supergroup'):
+            if m.chat.username not in allowed_chats and m.chat.id not in allowed_chats:
+                if random.random() >= 0.85:
+                    try:
+                        await dp.bot.send_message(m.chat.id,
+                                                  self.contact_required_text.format(chat_title=m.chat.title,
+                                                                                    chat_id=abs(m.chat.id)))
+
+                    except:
+                        pass
+                    raise CancelHandler()
+
+
 # logging_ms = dp.middleware.setup(LoggingMiddleware())
 update_logger = dp.middleware.setup(UpdatesLoggerMiddleware())
+private_bot = dp.middleware.setup(PrivateBotMiddleware())
