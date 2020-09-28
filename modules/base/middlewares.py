@@ -150,7 +150,7 @@ class PrivateBotMiddleware(BaseMiddleware):
                 print(allowed_chats)
                 print(m.chat.username, (m.chat.username or '').lower() not in allowed_chats, str(m.chat.id),
                       str(m.chat.id) not in allowed_chats)
-                if random.random() >= 0.85:
+                if random.random() >= 0.95:
                     try:
                         await dp.bot.send_message(m.chat.id,
                                                   self.contact_required_text.format(chat_title=m.chat.title,
