@@ -49,4 +49,11 @@ sentry_url = get_value('SENTRY_URL', '')
 
 clarifai_token = get_value('CLARIFAI_TOKEN', '')
 
-allowed_chats = get_value('ALLOWED_CHATS', '').replace(' ', '').split(',')
+allowed_chats = []
+
+try:
+    with open('modules/base/whitelist.txt', 'r') as f:
+        allowed_chats = f.readlines()
+        allowed_chats = [chat.rstrip() for chat in allowed_chats]
+except Exception as e:
+    print('Cant read whitelist file', e)

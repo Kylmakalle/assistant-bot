@@ -146,7 +146,10 @@ class PrivateBotMiddleware(BaseMiddleware):
 
     async def on_pre_process_message(self, m: types.Message, data: dict):
         if m.chat.type in ('group', 'supergroup'):
-            if m.chat.username not in allowed_chats and str(m.chat.id) not in allowed_chats:
+            if (m.chat.username or '').lower() not in allowed_chats and str(m.chat.id) not in allowed_chats:
+                print(allowed_chats)
+                print(m.chat.username, (m.chat.username or '').lower() not in allowed_chats, str(m.chat.id),
+                      str(m.chat.id) not in allowed_chats)
                 if random.random() >= 0.85:
                     try:
                         await dp.bot.send_message(m.chat.id,
