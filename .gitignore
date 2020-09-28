@@ -27,3 +27,4 @@ private-requirements.txt
 
 commands
 /.commands/
+whitelist.txt
