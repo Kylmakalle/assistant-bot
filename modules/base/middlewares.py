@@ -50,7 +50,7 @@ async def update_user(from_user, update_visit=True):
             user = await db.users.find_one_and_update({'_id': user['id']}, usr, upsert=True,
                                                       return_document=ReturnDocument.AFTER)
     else:
-        user = None
+        user = {}
     return user
 
 
