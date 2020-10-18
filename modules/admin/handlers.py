@@ -93,14 +93,14 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
             return
 
 
-@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message),
+@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message and not m.forward_date),
                     commands=['kick'], commands_prefix='!/#')
 async def cmd_kick(m: types.Message, user: dict, chat: dict):
     await m.reply(
         'Эта команда работает только ответом на сообщение.\nЧтобы она работала по-другому, надо сделать Pull request...')
 
 
-@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message),
+@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message and not m.forward_date),
                     commands=['ban'], commands_prefix='!/#')
 async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
     try:
