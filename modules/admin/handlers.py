@@ -136,7 +136,11 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
 @dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group),
                     commands=['tempban', 'tban', 'bant', 'tempb', 'разгон', 'разгонять'], commands_prefix="!/#")
 async def cmd_tempban(m: types.Message, user: dict, chat: dict):
-    user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
+    try:
+        user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
+    except:
+        await m.reply('Не могу получить информацию о юзере.')
+        return
     if not (user_request.is_chat_admin() or user.get('status', 0) >= 3):
         return await m.reply('Ты куда лезишь?')
 
