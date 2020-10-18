@@ -12,6 +12,8 @@ from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
 from private_modules.autoban.utils import get_user_id
+from durations import Duration
+from durations.helpers import valid_duration
 
 KICK_STICKERS = (
     # daykick
@@ -127,3 +129,31 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
                 await m.reply('Такой тут не пробегал')
     else:
         await m.reply('Не-не ¯\_(ツ)_/¯')
+
+
+@dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group), commands=['tempban', 'tban', 'bant'], commands_prefix="!/#")
+async def cmd_tempban(m: types.Message, user: dict, chat: dict):
+    user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
+    if not (user_request.is_chat_admin() or user.get('status', 0) >= 3):
+        return await m.reply('Ты куда лезишь?')
+
+    chat_id = chat['id']
+    target_user_id = m.reply_to_message.from_user.id
+    ban_user = await db.users.find_one({'id': target_user_id})
+
+    if len(m.text.split(' ')) > 1:
+        time_string = ''.join(m.text.split(' ')[1:])
+        if valid_duration(time_string):
+            duration = Duration(time_string).to_seconds()
+            await bot.kick_chat_member(chat_id, target_user_id, until_date=timedelta(seconds=duration))
+
+            await add_log(chat_id, target_user_id, LogEvents.TEMPBAN, by=m.from_user.id)
+            await log(event=LogEvents.TEMPBAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user)
+            await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
+
+            await m.reply('Пользователь был забанен. Спасибо!')
+        else:
+            return await m.reply('Я такие даты не понимаю')
+
+    else:
+        await m.reply('Ты что делаешь? Напиши /tempban 12h')
