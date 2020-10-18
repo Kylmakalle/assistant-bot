@@ -14,9 +14,9 @@ def get_time_args(args: str):
     invalid_tokens = []
     while True:
         try:
-            time_string = ' '.join(args_list)
+            time_string = ''.join(args_list)
             is_valid_duration = valid_duration(time_string)
-            if is_valid_duration and time_string.isalnum():
+            if is_valid_duration:
                 break
             else:
                 raise InvalidTokenError

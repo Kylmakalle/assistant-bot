@@ -154,7 +154,7 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
     command, _, msg_args = m.text.partition(' ')
     if msg_args:
         time_tokens, other_tokens = get_time_args(msg_args)
-        time_string = ' '.join(time_tokens)
+        time_string = ''.join(time_tokens)
 
         if valid_duration(time_string):
             duration = Duration(time_string)
