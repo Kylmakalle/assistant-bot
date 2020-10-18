@@ -19,4 +19,4 @@ def get_time_args(args: str):
             invalid_tokens.append(args_list[-1])
             del args_list[-1]
 
-    return args_list, invalid_tokens
+    return args_list, list(reversed(invalid_tokens))
