@@ -1,5 +1,6 @@
 from babel.dates import format_timedelta
 from durations import Duration
+from durations.helpers import valid_duration
 from durations.exceptions import InvalidTokenError
 from datetime import timedelta
 
@@ -13,8 +14,12 @@ def get_time_args(args: str):
     invalid_tokens = []
     while True:
         try:
-            Duration(' '.join(args_list))
-            break
+            time_string = ' '.join(args_list)
+            is_valid_duration = valid_duration(time_string)
+            if is_valid_duration and time_string.isalnum():
+                break
+            else:
+                raise InvalidTokenError
         except InvalidTokenError:
             invalid_tokens.append(args_list[-1])
             del args_list[-1]
