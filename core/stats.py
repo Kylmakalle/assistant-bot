@@ -19,3 +19,6 @@ class StatsEvents:
     CAPTCHA_TIMEOUT = 'captcha-timeout'
     CAPTCHA_PASSED = 'captcha-passed'
     CAPTCHA_ERROR = 'captcha-error'
+
+    # Tempban
+    TEMPBAN = 'admin-tempban'
