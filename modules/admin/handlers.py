@@ -93,15 +93,17 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
             return
 
 
-@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message and not m.forward_date),
-                    commands=['kick'], commands_prefix='!/#')
+@dp.message_handler(
+    lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message and not m.forward_date),
+    commands=['kick'], commands_prefix='!/#')
 async def cmd_kick(m: types.Message, user: dict, chat: dict):
     await m.reply(
         'Эта команда работает только ответом на сообщение.\nЧтобы она работала по-другому, надо сделать Pull request...')
 
 
-@dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message and not m.forward_date),
-                    commands=['ban'], commands_prefix='!/#')
+@dp.message_handler(
+    lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message and not m.forward_date),
+    commands=['ban'], commands_prefix='!/#')
 async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
     try:
         user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
@@ -150,11 +152,16 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
 
     command, _, msg_args = m.text.partition(' ')
     if msg_args:
-        time_string = ''.join(msg_args)
+        time_string = msg_args[0]
         if valid_duration(time_string):
             duration = Duration(time_string)
 
             ban_seconds = duration.to_seconds()
+            # Чтобы без пермачей
+            if ban_seconds < 30:
+                ban_seconds = 30
+            if ban_seconds > 31_536_000:
+                ban_seconds = 31_536_000 - 1
             human_time = format_seconds(ban_seconds)
             try:
                 await bot.restrict_chat_member(chat_id, target_user_id,
