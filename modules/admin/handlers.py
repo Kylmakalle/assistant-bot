@@ -146,7 +146,7 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
 
     chat_id = chat['id']
     target_user_id = m.reply_to_message.from_user.id
-    ban_user = await db.users.find_one({'id': target_user_id})
+    ban_user = m.reply_to_message.from_user.to_python()
 
     command, _, msg_args = m.text.partition(' ')
     if msg_args:
