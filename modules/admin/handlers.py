@@ -11,6 +11,7 @@ from core.stats import StatsEvents
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
+from modules.admin.utils import get_time_args
 from modules.admin.utils import format_seconds
 from private_modules.autoban.utils import get_user_id
 from private_modules.autoban.consts import unban_cb
@@ -152,7 +153,9 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
 
     command, _, msg_args = m.text.partition(' ')
     if msg_args:
-        time_string = msg_args[0]
+        time_tokens, other_tokens = get_time_args(msg_args)
+        time_string = ' '.join(time_tokens)
+
         if valid_duration(time_string):
             duration = Duration(time_string)
 
@@ -175,8 +178,14 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
                 user_id=str(ban_user['id'])
             )))
             await add_log(chat_id, target_user_id, LogEvents.TEMPBAN, by=m.from_user.id)
+
+            text_kwargs = {'duration': human_time}
+            if other_tokens:
+                text_kwargs['reason'] = ' '.join(other_tokens)
+
             await log(event=LogEvents.TEMPBAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user,
-                      text_kwargs={'duration': human_time}, log_kwargs={'reply_markup': kb})
+                      text_kwargs=text_kwargs,
+                      log_kwargs={'reply_markup': kb})
             await mp.track(m.from_user.id, StatsEvents.TEMPBAN, m)
 
             await m.reply(f'Пользователь пошёл разгонять память {hbold(human_time)}. Ждём с результатом!')
