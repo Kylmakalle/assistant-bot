@@ -131,7 +131,8 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
         await m.reply('Не-не ¯\_(ツ)_/¯')
 
 
-@dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group), commands=['tempban', 'tban', 'bant'], commands_prefix="!/#")
+@dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group),
+                    commands=['tempban', 'tban', 'bant'], commands_prefix="!/#")
 async def cmd_tempban(m: types.Message, user: dict, chat: dict):
     user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
     if not (user_request.is_chat_admin() or user.get('status', 0) >= 3):
@@ -141,14 +142,16 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
     target_user_id = m.reply_to_message.from_user.id
     ban_user = await db.users.find_one({'id': target_user_id})
 
-    if len(m.text.split(' ')) > 1:
-        time_string = ''.join(m.text.split(' ')[1:])
+    msg_args = m.get_args()
+    if msg_args:
+        time_string = ''.join(msg_args)
         if valid_duration(time_string):
-            duration = Duration(time_string).to_seconds()
-            await bot.kick_chat_member(chat_id, target_user_id, until_date=timedelta(seconds=duration))
+            duration = Duration(time_string)
+            await bot.kick_chat_member(chat_id, target_user_id, until_date=timedelta(seconds=duration.to_seconds()))
 
             await add_log(chat_id, target_user_id, LogEvents.TEMPBAN, by=m.from_user.id)
-            await log(event=LogEvents.TEMPBAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user)
+            await log(event=LogEvents.TEMPBAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user,
+                      text_kwargs={'duration': duration.representation})
             await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
 
             await m.reply('Пользователь был забанен. Спасибо!')
