@@ -1,4 +1,3 @@
-import time
 from datetime import timedelta
 
 from aiogram import types
@@ -151,8 +150,10 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
             await add_log(chat_id, target_user_id, LogEvents.TEMPBAN, by=m.from_user.id)
             await log(event=LogEvents.TEMPBAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user)
             await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
+
+            await m.reply('Пользователь был забанен. Спасибо!')
         else:
             return await m.reply('Я такие даты не понимаю')
 
     else:
-        await m.reply('Ты дурной. Напиши /tempban 12h')
+        await m.reply('Ты что делаешь? Напиши /tempban 12h')
