@@ -16,7 +16,7 @@ def get_time_args(args: str):
         try:
             time_string = ''.join(args_list)
             is_valid_duration = valid_duration(time_string)
-            if is_valid_duration:
+            if is_valid_duration and time_string.isalnum():
                 break
             else:
                 raise InvalidTokenError
