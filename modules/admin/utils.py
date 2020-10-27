@@ -16,12 +16,14 @@ def get_time_args(args: str):
         try:
             time_string = ''.join(args_list)
             is_valid_duration = valid_duration(time_string)
-            if is_valid_duration and time_string.isalnum():
+            if is_valid_duration and time_string.isascii():
                 break
             else:
                 raise InvalidTokenError
         except InvalidTokenError:
-            invalid_tokens.append(args_list[-1])
-            del args_list[-1]
-
+            if args_list:
+                invalid_tokens.append(args_list[-1])
+                del args_list[-1]
+            else:
+                break
     return args_list, list(reversed(invalid_tokens))
