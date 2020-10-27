@@ -49,7 +49,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
             await cmd_fun_report(m, user, chat)
             return
         _, _, msg_args = m.text.partition(' ')
-        if (check_cmd or '').lower().startswith('ban') and msg_args and valid_duration(get_time_args(msg_args)[0]):
+        if (check_cmd or '').lower().startswith('ban') and msg_args and get_time_args(msg_args)[0]:
             await cmd_tempban(m, user, chat)
             return
         vote_user = vote_user.to_python()
