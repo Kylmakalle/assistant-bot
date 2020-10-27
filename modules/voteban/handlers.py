@@ -43,7 +43,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         await m.reply('Не могу получить информацию о юзере.')
         return
 
-    if (user_request.is_chat_admin() or user.get('status', 0) >= 3) and not vote_user.is_bot:
+    if (user_request.can_restrict_members or user.get('status', 0) >= 3) and not vote_user.is_bot:
         check_cmd = m.text.replace('!', '').replace('/', '').replace('#', '')
         if (check_cmd or '').lower().startswith('report'):
             await cmd_fun_report(m, user, chat)
@@ -100,7 +100,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
             await m.reply('Пользователя нет в чате.')
             return
 
-        if user_in_chat.is_chat_admin() or user.get('status', 0) >= 3:
+        if user_in_chat.can_restrict_members or user.get('status', 0) >= 3:
             await m.reply(f"{hitalic('Баню пользователя')} {screen_name(m.from_user)} =)")
             return
 
@@ -130,7 +130,7 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
         user_request = await bot.get_chat_member(chat['id'], c.from_user.id)
     except:
         return
-    if user_request.is_chat_admin() or user.get('status', 0) >= 3:
+    if user_request.can_restrict_members or user.get('status', 0) >= 3:
         if voteban['active']:
             vote_user = await db.users.find_one({'id': int(callback_data['user_id'])})
             vote_user.update({'spamer': 1.0})

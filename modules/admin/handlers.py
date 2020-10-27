@@ -47,7 +47,7 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
         await m.reply('Не могу получить информацию о юзере.')
         return
 
-    if (user_request.is_chat_admin() or user.get('status', 0) >= 3) and not kick_user.is_bot:
+    if (user_request.can_restrict_members or user.get('status', 0) >= 3) and not kick_user.is_bot:
         kick_user = kick_user.to_python()
 
         try:
@@ -89,7 +89,7 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
             await m.reply('Пользователя нет в чате.')
             return
 
-        if user_in_chat.is_chat_admin() or user.get('status', 0) >= 3:
+        if user_in_chat.can_restrict_members or user.get('status', 0) >= 3:
             await m.reply("Слыш")
             return
 
@@ -111,7 +111,7 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
     except:
         await m.reply('Не могу получить информацию о юзере.')
         return
-    if user_request.is_chat_admin() or user.get('status', 0) >= 3:
+    if user_request.can_restrict_members or user.get('status', 0) >= 3:
         try:
             uid = await get_user_id(m)
         except:
@@ -144,7 +144,7 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
     except:
         await m.reply('Не могу получить информацию о юзере.')
         return
-    if not (user_request.is_chat_admin() or user.get('status', 0) >= 3):
+    if not (user_request.can_restrict_members or user.get('status', 0) >= 3):
         return await m.reply('Ты куда лезишь?')
 
     chat_id = chat['id']
