@@ -173,8 +173,8 @@ async def timed_restriction(m: types.Message, user: dict, chat: dict, action='ba
 
             ban_seconds = duration.to_seconds()
             # Чтобы без пермачей
-            if ban_seconds < 30:
-                ban_seconds = 30
+            if ban_seconds <= 30:
+                ban_seconds = 31
             if ban_seconds > 31_536_000:
                 ban_seconds = 31_536_000 - 1
             human_time = format_seconds(ban_seconds)
