@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from aiogram import types
 from aiogram.utils import exceptions
@@ -137,8 +137,19 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
 
 
 @dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group),
-                    commands=['tempban', 'tban', 'bant', 'tempb', 'разгон', 'разгонять', 'mute', 'мут'], commands_prefix="!/#")
+                    commands=['tempban', 'tban', 'bant', 'tempb', 'разгон', 'разгонять', 'mute', 'мут'],
+                    commands_prefix="!/#")
 async def cmd_tempban(m: types.Message, user: dict, chat: dict):
+    await timed_restriction(m, user, chat, 'ban')
+
+
+@dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group),
+                    commands=['unmedia', 'mmedia', 'toonsfw', 'анмедия', 'минусмедия'], commands_prefix="!/#")
+async def cmd_unmedia(m: types.Message, user: dict, chat: dict):
+    await timed_restriction(m, user, chat, 'unmedia')
+
+
+async def timed_restriction(m: types.Message, user: dict, chat: dict, action='ban'):
     try:
         user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
     except:
@@ -150,6 +161,7 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
     chat_id = chat['id']
     target_user_id = m.reply_to_message.from_user.id
     ban_user = m.reply_to_message.from_user.to_python()
+    log_event = LogEvents.TEMPBAN if action == 'ban' else LogEvents.UNMEDIA
 
     command, _, msg_args = m.text.partition(' ')
     if msg_args:
@@ -168,8 +180,10 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
             human_time = format_seconds(ban_seconds)
             try:
                 await bot.restrict_chat_member(chat_id, target_user_id,
-                                               until_date=datetime.utcnow() + timedelta(seconds=ban_seconds),
-                                               can_send_messages=False)
+                                               until_date=timedelta(seconds=ban_seconds),
+                                               can_send_messages=action != 'ban',
+                                               can_send_media_messages=False, can_send_other_messages=False,
+                                               can_add_web_page_previews=False)
             except Exception as e:
                 return await m.reply('штото пошло не так :((')
             kb = types.InlineKeyboardMarkup()
@@ -177,13 +191,13 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
                 chat_id=str(chat['id']),
                 user_id=str(ban_user['id'])
             )))
-            await add_log(chat_id, target_user_id, LogEvents.TEMPBAN, by=m.from_user.id)
+            await add_log(chat_id, target_user_id, log_event, by=m.from_user.id)
 
             text_kwargs = {'duration': human_time}
             if other_tokens:
                 text_kwargs['reason'] = ' '.join(other_tokens)
 
-            await log(event=LogEvents.TEMPBAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user,
+            await log(event=log_event, chat=chat, user=ban_user, message_id=m.message_id, admin=user,
                       text_kwargs=text_kwargs,
                       log_kwargs={'reply_markup': kb})
             await mp.track(m.from_user.id, StatsEvents.TEMPBAN, m)
