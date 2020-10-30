@@ -144,7 +144,8 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
 
 
 @dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group),
-                    commands=['unmedia', 'mmedia', 'toonsfw', 'анмедия', 'минусмедия'], commands_prefix="!/#")
+                    commands=['nomedia', 'unmedia', 'mmedia', 'toonsfw', 'анмедия', 'минусмедия'],
+                    commands_prefix="!/#")
 async def cmd_unmedia(m: types.Message, user: dict, chat: dict):
     await timed_restriction(m, user, chat, 'unmedia')
 
