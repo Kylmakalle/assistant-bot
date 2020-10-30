@@ -27,3 +27,28 @@ def get_time_args(args: str):
             else:
                 break
     return args_list, list(reversed(invalid_tokens))
+
+
+def get_restrict_text(chat: dict, restrict_type: str) -> str:
+    text = "Пользователь ограничен на {human_time}."
+    if restrict_type == "ban":
+        text = "Пользователь в муте на {human_time}."
+
+        if chat.get('username') == 'ru2chhw':
+            text = "Пользователь пошёл разгонять память {human_time}. Ждём с результатом!"
+        elif chat.get('username') == 'velach':
+            text = "Пользователь пошёл парафинить цепь {human_time}. Ждём с результатом!"
+        elif chat.get('username') == 'ru2chmobi':
+            text = "Пользователь пошёл прошивать кастом {human_time}. Ждём с кирпичом!"
+
+    elif restrict_type == "unmedia":
+        text = "Пользователь без медии на {human_time}."
+
+        # if chat.get('username') == 'ru2chhw':
+        #     text = "Пользователь пошёл разгонять память {human_time}. Ждём с результатом!"
+        # elif chat.get('username') == 'velach':
+        #     text = "Пользователь пошёл парафинить цепь {human_time}. Ждём с результатом!"
+        # elif chat.get('username') == 'ru2chmobi':
+        #     text = "Пользователь пошёл прошивать кастом {human_time}. Ждём с кирпичом!"
+
+    return text

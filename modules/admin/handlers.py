@@ -11,8 +11,7 @@ from core.stats import StatsEvents
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
-from modules.admin.utils import get_time_args
-from modules.admin.utils import format_seconds
+from modules.admin.utils import get_time_args, format_seconds, get_restrict_text
 from private_modules.autoban.utils import get_user_id
 from private_modules.autoban.consts import unban_cb
 from durations import Duration
@@ -203,7 +202,7 @@ async def timed_restriction(m: types.Message, user: dict, chat: dict, action='ba
                       log_kwargs={'reply_markup': kb})
             await mp.track(m.from_user.id, StatsEvents.TEMPBAN, m)
 
-            await m.reply(f'Пользователь пошёл разгонять память {hbold(human_time)}. Ждём с результатом!')
+            await m.reply(get_restrict_text(chat, action).format(human_time=hbold(human_time)))
         else:
             return await m.reply('Я такие даты не понимаю')
 
