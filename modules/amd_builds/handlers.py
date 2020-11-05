@@ -29,7 +29,7 @@ error_msgs = (
     '<b>Автобэкап не выполнен</b>'
 )
 
-build_template = '<a href="{link}">&#8203;</a><b>{title}</b>\nu/{user}'
+build_template = '<a href="{link}">&#8203;</a><b>{title}</b>\nu/{user}\n<a href="{reddit_url}">Reddit</a>'
 
 
 @dp.message_handler(commands=['amd', 'build', 'reddit'])
@@ -51,7 +51,8 @@ async def cmd_amd_build(m: types.Message, user: dict, chat: dict):
         await mp.track(m.from_user.id, StatsEvents.AMDBUILD_ERROR, m)
     else:
         await sent.edit_text(
-            build_template.format(link=build['photo'], title=build['title'], user=screen_name(m.from_user, True)))
+            build_template.format(link=build['photo'], title=build['title'], user=screen_name(m.from_user, True),
+                                  reddit_url=build['reddit_url']))
 
         await mp.track(m.from_user.id, StatsEvents.AMDBUILD, m)
 

@@ -72,7 +72,7 @@ async def get_build(amount=100):
             photo = get_build_photo(random_build)
             if photo:
                 print(random_build['id'], 'SENT')
-                return {'photo': photo, 'title': random_build['title']}
+                return {'photo': photo, 'title': random_build['title'], 'reddit_url': random_build['permalink']}
     else:
         return
 
