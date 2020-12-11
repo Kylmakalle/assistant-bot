@@ -5,6 +5,7 @@ import aiohttp
 from random import uniform
 import random
 import asyncio
+from pprint import pprint
 
 
 def load_videocards():
@@ -78,18 +79,17 @@ async def get_build(amount=100):
 
 
 def get_build_photo(build):
-    from pprint import pprint
     pprint(build)
 
     try:
-        if build['media']['content']['type'] != 'embed':
+        if build['media']['type'] != 'embed':
             return build['media']['content']
-    except:
-        print('Error media-content')
+    except Exception as e:
+        print('Error media-content', e)
         pass
 
     try:
         return build['source']['url']
-    except:
-        print('Error source-url')
+    except Exception as e:
+        print('Error source-url', e)
         pass
