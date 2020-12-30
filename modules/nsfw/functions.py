@@ -1,13 +1,16 @@
+from datetime import datetime
+from statistics import mean
+
 from clarifai.rest import ClarifaiApp
+
 from core.config import clarifai_token
 from core.db import db
-from statistics import mean
 
 app = ClarifaiApp(api_key=clarifai_token)
 model = app.public_models.nsfw_model
 
 
-async def check_nsfw(url, file_id=None, is_video=False):
+async def check_nsfw(url, file_id=None, is_video=False, chat_id=None):
     saved_prediction = await db.nsfw.find_one({'_id': file_id})
     if saved_prediction:
         nsfw = saved_prediction['nsfw']
@@ -35,5 +38,6 @@ async def check_nsfw(url, file_id=None, is_video=False):
                 else:
                     nsfw = concept['value']
 
-        await db.nsfw.insert_one({'_id': file_id, 'nsfw': nsfw, 'sfw': sfw})
+        await db.nsfw.insert_one(
+            {'_id': file_id, 'nsfw': nsfw, 'sfw': sfw, 'datetime': datetime.utcnow(), 'chat_id': chat_id})
     return {'nsfw': nsfw, 'sfw': sfw}

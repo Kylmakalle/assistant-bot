@@ -59,15 +59,14 @@ async def cmd_nsfw(message: types.Message):
                 return
 
             try:
-                result = await check_nsfw(url, file_id, is_video=is_video)
+                result = await check_nsfw(url, file_id, is_video=is_video, chat_id=message.chat.id)
             except Exception as e:
-                print(e)
                 await message.reply('Не могу проверить медиа!')
                 return
             nsfw = result['nsfw']
             sfw = result['sfw']
 
-            status = 'NSFW' if nsfw >= sfw else 'SFW'
+            status = 'NSFW 🍓' if nsfw >= sfw else 'SFW 👌'
             percentage = nsfw if nsfw >= sfw else sfw
             await bot.send_message(message.chat.id,
                                    'Я на <code>{:.1%}</code> уверен, что это <b>{}</b>'.format(percentage,
