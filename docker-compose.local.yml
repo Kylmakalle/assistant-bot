@@ -19,6 +19,7 @@ services:
         max-size: "100M"
         max-file: "10"
     restart: always
+    build: .
     volumes:
     - ".:/usr/src/bot"
     env_file: .env
