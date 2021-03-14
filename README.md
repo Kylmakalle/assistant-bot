@@ -4,7 +4,7 @@ Helper bot for russian Telegram chats [/hw/](https://t.me/ru2chhw) & [/mobi/](ht
 
 # Run
 ```bash
-cp example.env production.env
+cp example.env .env
 # Edit env file with bot token
 docker-compose -f docker-compose.local.yml up -d
 ```
