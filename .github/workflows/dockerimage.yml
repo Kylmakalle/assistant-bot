@@ -1,0 +1,23 @@
+name: Build Docker Image
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          token: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
+      - name: Build and publish
+        uses: elgohr/Publish-Docker-Github-Action@master
+        with:
+          name: Kylmakalle/assistant-bot:latest
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          dockerfile: private/Dockerfile
+          snapshot: true
