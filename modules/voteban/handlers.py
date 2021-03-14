@@ -74,12 +74,17 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
     else:
         if m.from_user.id == vote_user.id:
-            await m.reply("Ну ты сам напросился")
-            try:
-                await bot.restrict_chat_member(chat['id'], vote_user.id, until_date=m.date + timedelta(seconds=35))
-            except:
-                pass
-            await mp.track(m.from_user.id, StatsEvents.SELF_BAN, m)
+            if user_request.can_send_media_messages and \
+                    user_request.can_send_other_messages and \
+                    user_request.can_add_web_page_previews:
+                await m.reply("Ну ты сам напросился")
+                try:
+                    await bot.restrict_chat_member(chat['id'], vote_user.id, until_date=m.date + timedelta(seconds=35))
+                except:
+                    pass
+                await mp.track(m.from_user.id, StatsEvents.SELF_BAN, m)
+            else:
+                await m.reply("Піймав на обхід бана, до вас вже виїхали")
             return
 
         if vote_user.is_bot:

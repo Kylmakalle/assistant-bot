@@ -10,9 +10,9 @@ from core.db import db
 from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
+from modules.admin.consts import unban_cb
 from modules.admin.utils import get_time_args, format_seconds, get_restrict_text, get_next_day_msk
 from modules.admin.utils import get_user_id
-from modules.admin.consts import unban_cb
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import LogEvents
 
@@ -63,12 +63,17 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
         await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
     else:
         if m.from_user.id == kick_user.id:
-            await m.reply("Ну ты сам напросился")
-            try:
-                await bot.kick_chat_member(chat['id'], kick_user['id'])
-                await bot.unban_chat_member(chat['id'], kick_user['id'])
-            except:
-                pass
+            if user_request.can_send_media_messages and \
+                    user_request.can_send_other_messages and \
+                    user_request.can_add_web_page_previews:
+                await m.reply("Ну ты сам напросился")
+                try:
+                    await bot.kick_chat_member(chat['id'], kick_user['id'])
+                    await bot.unban_chat_member(chat['id'], kick_user['id'])
+                except:
+                    pass
+            else:
+                await m.reply("Піймав на обхід бана, до вас вже виїхали")
             return
 
         if kick_user.is_bot:
