@@ -1,5 +1,7 @@
 import os
 import pathlib
+import logging
+log = logging.getLogger('config')
 
 
 def get_value(key, default=None, converter=None):
@@ -51,9 +53,12 @@ clarifai_token = get_value('CLARIFAI_TOKEN', '')
 
 allowed_chats = []
 
-try:
-    with open('private/whitelist.txt', 'r') as f:
-        allowed_chats = f.readlines()
-        allowed_chats = [chat.rstrip() for chat in allowed_chats]
-except Exception as e:
-    print('Cant read whitelist file', e)
+whitelist_file_path = 'private/whitelist.txt'
+
+if os.path.isfile(whitelist_file_path):
+    try:
+        with open(whitelist_file_path, 'r') as f:
+            allowed_chats = f.readlines()
+            allowed_chats = [chat.rstrip() for chat in allowed_chats]
+    except Exception as e:
+        log.exception(f'Cant read whitelist file', exc_info=True)

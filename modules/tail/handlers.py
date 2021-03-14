@@ -8,7 +8,7 @@ async def handle_all_unhandled_messages(message: types.Message):
     """
     Handle all unhanded messages
     """
-    print('UNHANDLED MESSAGE', message.chat.id)
+    # print('UNHANDLED MESSAGE', message.chat.id)
     pass
 
 
@@ -17,5 +17,5 @@ async def handle_all_unhandled_callback_query(query: types.CallbackQuery):
     """
     Handle unregistered callback query data
     """
-    print('UNHANDLED QUERY', query.id)
+    # print('UNHANDLED QUERY', query.id)
     pass

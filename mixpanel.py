@@ -6,6 +6,8 @@ import time
 import aiohttp
 import aiohttp.client_exceptions
 from aiogram.types import CallbackQuery, Message
+import logging
+log = logging.getLogger('mixpanel')
 
 TRACK_URL = 'http://api.mixpanel.com/track'
 
@@ -89,5 +91,5 @@ class Mixpanel:
                         raise ValueError('Error in Mixpanel request: ' + r.get('error', 'None'))
                     return r
         except (aiohttp.client_exceptions.ClientError, ValueError) as e:
-            print(e)
+            log.exception('Cant post to mixpanel', exc_info=True)
             return False

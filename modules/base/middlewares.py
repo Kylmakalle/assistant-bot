@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from pprint import pprint
 
 from aiogram import types
 from aiogram.contrib.middlewares.logging import LoggingMiddleware

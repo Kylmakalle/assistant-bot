@@ -1,11 +1,16 @@
-from aiogram.utils.markdown import hitalic
-from aiogram.utils.json import json
-from modules.amd_builds.consts import REDDIT_URL, USER_AGENT
-import aiohttp
-from random import uniform
-import random
 import asyncio
-from pprint import pprint
+import logging
+import random
+
+from random import uniform
+
+import aiohttp
+from aiogram.utils.json import json
+from aiogram.utils.markdown import hitalic
+
+from modules.amd_builds.consts import REDDIT_URL, USER_AGENT
+
+log = logging.getLogger('amd_builds')
 
 
 def load_videocards():
@@ -39,7 +44,7 @@ async def request_builds(amount):
 
                 async with session.get(REDDIT_URL, params=params, headers=headers) as resp:
                     r = await resp.json()
-                    posts = r['posts']
+                    posts = r.get('posts')
                     if posts:
                         for key in posts:
                             res.append(posts[key])
@@ -47,49 +52,54 @@ async def request_builds(amount):
                     else:
                         raise ValueError
             except (aiohttp.ClientError, ValueError, IndexError, KeyError) as e:
-                print('Reddit Error', e)
+                log.exception('Reddit Error', exc_info=True)
                 errors += 1
             if errors > 10:
                 break
             if len(res) >= amount:
                 break
             sleep_time = uniform(0.2, 1.5)
-            print('Reddit Sleeping', sleep_time)
+            log.info(f'Reddit Sleeping {sleep_time}')
             await asyncio.sleep(sleep_time)
     return res
 
 
 async def get_build(amount=100):
     builds = await request_builds(amount)
-    print(
-        'BUILDS AMOUNT', len(builds)
+    log.info(
+        f'BUILDS AMOUNT {len(builds)}'
     )
     if builds:
         photo = None
         random.shuffle(builds)
         while True:
             random_build = random.choice(builds)
-            print('RANDOMBUILD', random_build['id'])
+            log.info(f'RANDOMBUILD {random_build["id"]}')
             photo = get_build_photo(random_build)
             if photo:
-                print(random_build['id'], 'SENT')
+                log.info(f'SENT Random build {random_build["id"]}')
                 return {'photo': photo, 'title': random_build['title'], 'reddit_url': random_build['permalink']}
     else:
         return
 
 
 def get_build_photo(build):
-    pprint(build)
-
+    log.info(f"Reddit JSON post {json.dumps(build)}")
     try:
-        if build['media']['type'] != 'embed':
-            return build['media']['content']
+        if build['media']['type'] == 'gallery':
+            for photo_id in build['media']['gallery']['items']:
+                if build['media']['mediaMetadata'][photo_id]['e'] == 'Image':
+                    return build['media']['mediaMetadata'][photo_id]['s']['u']
+        elif build['media']['type'] != 'embed':
+            if 'content' in build['media']:
+                return build['media']['content']
+
     except Exception as e:
-        print('Error media-content', e)
+        log.error(f'Error media-content {e}')
         pass
 
     try:
         return build['source']['url']
     except Exception as e:
-        print('Error source-url', e)
+        log.error(f'Error source-url {e}')
         pass

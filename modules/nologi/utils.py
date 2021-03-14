@@ -1,8 +1,9 @@
 # А нафига нам в БД хранить то всё? Можно в рантайме
-import logging
 import aiohttp
 import aiohttp.client_exceptions
 from datetime import datetime, timedelta
+import logging
+log = logging.getLogger('nologi')
 
 RATES_URL = "https://www.sberbank.ru/portalserver/proxy/"
 RATES_PARAMS = {'pipe': "shortCachePipe",
@@ -25,12 +26,12 @@ async def get_rates():
     try:
         usd_price = fetched_rates['base']['840']['0']['sellValue']
     except KeyError:
-        logging.exception(f'Error fetching price', exc_info=True)
+        log.exception(f'Error fetching price', exc_info=True)
         usd_price = 73.08
     try:
         eur_price = fetched_rates['base']['978']['0']['sellValue']
     except KeyError:
-        logging.exception(f'Error fetching price', exc_info=True)
+        log.exception(f'Error fetching price', exc_info=True)
         eur_price = 86.48
 
     RATES_UPDATE = datetime.utcnow()
@@ -49,7 +50,7 @@ async def fetch_rates():
                 r = await resp.json()
                 return r
     except (aiohttp.client_exceptions.ClientError, ValueError) as e:
-        print(e)
+        log.error(f'Error fetching prices {e}')
         return {}
 
 

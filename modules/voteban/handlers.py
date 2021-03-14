@@ -1,3 +1,4 @@
+from datetime import datetime
 from datetime import timedelta
 
 from aiogram import types
@@ -8,12 +9,11 @@ from core.db import db, ReturnDocument
 from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
-from modules.captcha_button.handlers import add_log
+from modules.admin.handlers import cmd_tempban
 from modules.admin.utils import get_time_args
+from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
-from durations.helpers import valid_duration
-from modules.admin.handlers import cmd_tempban
 
 
 async def get_voteban(chat_id: int, user_id: int) -> dict:
@@ -43,7 +43,8 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         await m.reply('Не могу получить информацию о юзере.')
         return
 
-    if (user_request.can_restrict_members or user_request.status == 'creator' or user.get('status', 0) >= 3) and not vote_user.is_bot:
+    if (user_request.can_restrict_members or user_request.status == 'creator' or user.get('status',
+                                                                                          0) >= 3) and not vote_user.is_bot:
         check_cmd = m.text.replace('!', '').replace('/', '').replace('#', '')
         if (check_cmd or '').lower().startswith('report'):
             await cmd_fun_report(m, user, chat)
@@ -57,7 +58,8 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         usr = {'$set': vote_user}
         await db.users.find_one_and_update({'_id': vote_user['id']}, usr, upsert=True,
                                            return_document=ReturnDocument.AFTER)
-        await update_voteban(chat['id'], vote_user['id'], {'$set': {'active': False, 'confirmed': True}})
+        await update_voteban(chat['id'], vote_user['id'],
+                             {'$set': {'active': False, 'confirmed': True, 'closed_datetime': datetime.utcnow()}})
         try:
             await bot.kick_chat_member(chat['id'], vote_user['id'])
         except:
@@ -109,7 +111,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         if not voteban:
             new_vb = True
             voteban = {'user_id': vote_user.id, 'chat_id': chat['id'], 'votes': [{'user_id': user['id']}],
-                       'active': True}
+                       'active': True, 'active_datetime': datetime.utcnow()}
             await db.votebans.insert_one(voteban)
 
         kb = render_voteban_kb(voteban)
@@ -137,7 +139,8 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
             usr = {'$set': vote_user}
             await db.users.find_one_and_update({'_id': vote_user['id']}, usr, upsert=True,
                                                return_document=ReturnDocument.AFTER)
-            await update_voteban(chat['id'], vote_user['id'], {'$set': {'active': False, 'confirmed': True}})
+            await update_voteban(chat['id'], vote_user['id'],
+                                 {'$set': {'active': False, 'confirmed': True, 'closed_datetime': datetime.utcnow()}})
             try:
                 await bot.kick_chat_member(int(callback_data['chat_id']), int(callback_data['user_id']))
             except:
