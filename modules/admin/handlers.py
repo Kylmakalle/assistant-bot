@@ -1,22 +1,20 @@
 from datetime import timedelta, datetime
 
+import pytz
 from aiogram import types
-from aiogram.utils import exceptions
-from aiogram.utils.markdown import hbold, hitalic
+from aiogram.utils.markdown import hbold
+from durations import Duration
+from durations.helpers import valid_duration
 
-from core.db import db, ReturnDocument
+from core.db import db
 from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
-from modules.captcha_button.handlers import add_log
-from modules.voteban.consts import voter, LogEvents, get_admin_report_response
-from modules.voteban.views import render_voteban_kb, screen_name
 from modules.admin.utils import get_time_args, format_seconds, get_restrict_text, get_next_day_msk
-from private_modules.autoban.utils import get_user_id
-from private_modules.autoban.consts import unban_cb
-from durations import Duration
-from durations.helpers import valid_duration
-import pytz
+from modules.admin.utils import get_user_id
+from modules.admin.consts import unban_cb
+from modules.captcha_button.handlers import add_log
+from modules.voteban.consts import LogEvents
 
 KICK_STICKERS = (
     # daykick
@@ -47,7 +45,8 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
         await m.reply('Не могу получить информацию о юзере.')
         return
 
-    if (user_request.can_restrict_members or user_request.status == 'creator' or user.get('status', 0) >= 3) and not kick_user.is_bot:
+    if (user_request.can_restrict_members or user_request.status == 'creator' or user.get('status',
+                                                                                          0) >= 3) and not kick_user.is_bot:
         kick_user = kick_user.to_python()
 
         try:

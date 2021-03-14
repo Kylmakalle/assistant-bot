@@ -1,9 +1,12 @@
-from babel.dates import format_timedelta
-from durations import Duration
-from durations.helpers import valid_duration
-from durations.exceptions import InvalidTokenError
-from datetime import timedelta, datetime, date
+from datetime import timedelta, datetime
+
 import pytz
+from aiogram import types
+from babel.dates import format_timedelta
+from durations.exceptions import InvalidTokenError
+from durations.helpers import valid_duration
+
+from core import db
 
 
 def format_seconds(seconds: int) -> str:
@@ -70,3 +73,56 @@ def get_next_day_msk() -> datetime:
     today = datetime.now(pytz.timezone('Europe/Moscow'))
     tomorrow = today + timedelta(days=1)
     return tomorrow.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def get_substring_line(string, substring) -> int:
+    for line, item in enumerate(string.split('\n')):
+        if substring in item:
+            return line
+
+    return -1
+
+
+async def get_user_id(m: types.Message):
+    uid = None
+    for entity in m.entities or m.caption_entities:
+        if entity.type == types.MessageEntityType.MENTION:
+            mention = entity.get_text(m.text)
+            if get_substring_line(m.text, mention) != 0:
+                continue
+            user = await db.users.find_one({'username': {'$regex': mention.replace('@', ''), '$options': 'i'}})
+            if not user:
+                continue
+            else:
+                uid = user['id']
+                break
+        elif entity.type == types.MessageEntityType.HASHTAG:
+            hashtag = entity.get_text(m.text)
+            if get_substring_line(m.text, hashtag) != 0:
+                continue
+            if hashtag.startswith('#id') and len(hashtag) > 3:
+                uid = int(hashtag.replace('#id', ''))
+                break
+        elif entity.type == types.MessageEntityType.TEXT_MENTION:
+            if get_substring_line(m.text, entity.get_text(m.text)) != 0:
+                continue
+            uid = entity.user.id
+            break
+    if not uid:
+        args = m.text.split()
+        if not args:
+            m.text = ' '.join(m.text.split())
+            cmd, args = m.text.split(' ', 1)
+        else:
+            if len(args) > 1:
+                args = args[1]
+            else:
+                raise Exception('No uid found')
+        try:
+            uid = int(args.strip())
+        except:
+            pass
+    if not uid:
+        raise Exception('No uid found')
+    else:
+        return uid

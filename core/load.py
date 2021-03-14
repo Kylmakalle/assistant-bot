@@ -3,7 +3,7 @@ from core import misc
 
 def load_modules():
     try:
-        misc.loader.load_package('private_modules')
+        misc.loader.load_package('private.modules')
     except (ImportError, ModuleNotFoundError):
         pass
     misc.loader.load_packages(f"modules.{item}" for item in [
