@@ -10,21 +10,9 @@ __pycache__
 *.env
 !example.env
 
-nginx/bot.conf
-
-traefik/traefik.toml
-traefik/acme/*s
-
 venv/
 
-docker-compose.yml
 modules/echo
-
-private/*
-private_modules/*
-
-private-requirements.txt
 
 commands
 /.commands/
-whitelist.txt
