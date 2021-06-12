@@ -4,7 +4,9 @@ async-timeout==3.0.1
 attrs==20.3.0
 Babel==2.9.0
 certifi
-clarifai==2.6.2
+# clarifai==2.6.2
+# Use custom due to bug
+git+https://github.com/Kylmakalle/clarifai-python.git
 motor==2.3.1
 multidict==5.1.0
 pymongo==3.11.3
