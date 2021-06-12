@@ -42,6 +42,7 @@ async def request_builds(amount):
             try:
 
                 async with session.get(REDDIT_URL, params=params, headers=headers) as resp:
+                    log.info(f'REDDIT RESPONSE {await resp.text()}')
                     r = await resp.json()
                     posts = r.get('posts')
                     if posts:
