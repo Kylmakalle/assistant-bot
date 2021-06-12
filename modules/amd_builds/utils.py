@@ -1,7 +1,6 @@
 import asyncio
 import logging
 import random
-
 from random import uniform
 
 import aiohttp
@@ -50,6 +49,7 @@ async def request_builds(amount):
                             res.append(posts[key])
                         after = r['postOrder'][-1]
                     else:
+                        log.exception(f'No posts in reddit api, {posts}')
                         raise ValueError
             except (aiohttp.ClientError, ValueError, IndexError, KeyError) as e:
                 log.exception('Reddit Error', exc_info=True)
