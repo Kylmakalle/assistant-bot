@@ -6,7 +6,7 @@ Babel==2.9.0
 certifi
 # clarifai==2.6.2
 # Use custom due to bug
-git+https://github.com/Kylmakalle/clarifai-python.git
+https://github.com/Kylmakalle/clarifai-python/archive/master.zip
 motor==2.3.1
 multidict==5.1.0
 pymongo==3.11.3
