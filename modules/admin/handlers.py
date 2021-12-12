@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+from typing import Optional
 
 import pytz
 from aiogram import types
@@ -14,7 +15,7 @@ from modules.admin.consts import unban_cb
 from modules.admin.utils import get_time_args, format_seconds, get_restrict_text, get_next_day_msk
 from modules.admin.utils import get_user_id
 from modules.captcha_button.handlers import add_log
-from modules.voteban.consts import LogEvents
+from modules.voteban.consts import LogEvents, get_admin_report_response
 
 KICK_STICKERS = (
     # daykick
@@ -38,6 +39,8 @@ KICK_PACKS = ('daykick',)
 @dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message),
                     commands=['kick'], commands_prefix='!/#')
 async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
+    if m.reply_to_message.sender_chat and await ban_sender_chat(m):
+        return
     kick_user = m.reply_to_message.from_user
     try:
         user_request = await bot.get_chat_member(chat['id'], m.from_user.id)
@@ -103,7 +106,8 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
     commands=['kick'], commands_prefix='!/#')
 async def cmd_kick(m: types.Message, user: dict, chat: dict):
     await m.reply(
-        'Эта команда работает только ответом на сообщение.\nЧтобы она работала по-другому, надо сделать Pull request...')
+        'Эта команда работает только ответом на сообщение.\nЧтобы она работала по-другому, надо сделать Pull request...'
+    )
 
 
 @dp.message_handler(
@@ -144,6 +148,8 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
                     commands=['tempban', 'tban', 'bant', 'tempb', 'разгон', 'разгонять', 'mute', 'мут'],
                     commands_prefix="!/#")
 async def cmd_tempban(m: types.Message, user: dict, chat: dict):
+    if m.reply_to_message.sender_chat and await ban_sender_chat(m):
+        return
     await timed_restriction(m, user, chat, 'ban')
 
 
@@ -151,6 +157,8 @@ async def cmd_tempban(m: types.Message, user: dict, chat: dict):
                     commands=['nomedia', 'unmedia', 'mmedia', 'toonsfw', 'анмедия', 'минусмедия'],
                     commands_prefix="!/#")
 async def cmd_unmedia(m: types.Message, user: dict, chat: dict):
+    if m.reply_to_message.sender_chat and await ban_sender_chat(m):
+        return
     await timed_restriction(m, user, chat, 'unmedia')
 
 
@@ -222,3 +230,22 @@ async def timed_restriction(m: types.Message, user: dict, chat: dict, action='ba
             get_restrict_text(chat, action, till_next_day=bool(until_date)).format(human_time=hbold(human_time)))
     else:
         return await m.reply('Я такие даты не понимаю')
+
+
+async def ban_sender_chat(message: types.Message, target: Optional[types.Chat] = None):
+    if target is None:
+        target = message.reply_to_message.sender_chat
+        to_message = message.reply_to_message
+    else:
+        to_message = message
+    try:  # Apply restriction
+        await message.chat.ban_sender_chat(sender_chat_id=target.id)
+    except Exception as e:
+        print(f"Failed to restrict chat member: {e}")
+        return False
+    await to_message.answer(
+        get_admin_report_response() +
+        f"Канал {target.mention} заблокирован, "
+        f"его владелец больше не сможет писать от имени любого из своих каналов в этом чате."
+    )
+    return True
