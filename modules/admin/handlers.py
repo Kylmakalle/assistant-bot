@@ -145,7 +145,7 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
 
 
 @dp.message_handler(lambda m: (m.reply_to_message and types.ChatType.is_group_or_super_group),
-                    commands=['tempban', 'tban', 'bant', 'tempb', 'разгон', 'разгонять', 'mute', 'мут'],
+                    commands=['tempban', 'tban', 'bant', 'tempb', 'разгон', 'разгонять', 'mute', 'мут', 'хрюкни'],
                     commands_prefix="!/#")
 async def cmd_tempban(m: types.Message, user: dict, chat: dict):
     if m.reply_to_message.sender_chat and await ban_sender_chat(m):
