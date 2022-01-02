@@ -37,7 +37,7 @@ KICK_PACKS = ('daykick',)
                               and (m.sticker.set_name in KICK_PACKS or m.sticker.file_unique_id in KICK_STICKERS),
                     content_types=['sticker'])
 @dp.message_handler(lambda m: (types.ChatType.is_group_or_super_group and m.reply_to_message),
-                    commands=['kick'], commands_prefix='!/#')
+                    commands=['kick', 'хрюк'], commands_prefix='!/#')
 async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
     if m.reply_to_message.sender_chat and await ban_sender_chat(m):
         return
@@ -103,7 +103,7 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
 
 @dp.message_handler(
     lambda m: (types.ChatType.is_group_or_super_group and not m.reply_to_message and not m.forward_date),
-    commands=['kick'], commands_prefix='!/#')
+    commands=['kick', 'хрюк'], commands_prefix='!/#')
 async def cmd_kick(m: types.Message, user: dict, chat: dict):
     await m.reply(
         'Эта команда работает только ответом на сообщение.\nЧтобы она работала по-другому, надо сделать Pull request...'
