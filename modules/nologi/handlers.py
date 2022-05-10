@@ -17,7 +17,7 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
     cmd = hcode("/nolog <цена товара в EUR>") + '\n'
     cmd += hcode("/nolog <цена товара> <валюта>") + '\n'
 
-    example_cmd = "Пример:" + " " + "/nolog 465.98" + '\n\n'
+    example_cmd = "Пример:" + " " + "/nolog 1465.98" + '\n\n'
 
     available_curs = "Доступные валюты: <b>EUR, USD, RUB/RUR</b>"
     about = "\n" + hitalic(
@@ -45,7 +45,7 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
 
             currency = currency.upper()
 
-            threshold = rates['EUR'] / rates[currency] * 200
+            threshold = rates['EUR'] / rates[currency] * 1000
 
             if currency in ('RUB', 'RUR'):
                 other_curr = 'USD'
@@ -58,7 +58,7 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
                     format_fiat(currency, ffloat(threshold)))
                 break
             else:
-                fix_fee = rates['EUR'] / rates[currency] * 4  # fix
+                fix_fee = rates['RUB'] / rates[currency] * 500  # fix
                 fee = (nice_price - threshold) * 0.15  # 15% above price
                 total_fee = fee + fix_fee
 

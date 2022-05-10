@@ -1,13 +1,13 @@
 # А нафига нам в БД хранить то всё? Можно в рантайме
+import logging
+from datetime import datetime, timedelta
+
 import aiohttp
 import aiohttp.client_exceptions
-from datetime import datetime, timedelta
-import logging
+
 log = logging.getLogger('nologi')
 
-RATES_URL = "https://www.sberbank.ru/portalserver/proxy/"
-RATES_PARAMS = {'pipe': "shortCachePipe",
-                'url': 'http%3A%2F%2Flocalhost%2Frates-web%2FrateService%2Frate%2Fcurrent%3FregionId%3D77%26rateCategory%3Dbase%26currencyCode%3D978%26currencyCode%3D840'}
+RATES_URL = "https://www.sberbank.ru/proxy/services/rates/public/actual?rateType=ERNP-2&isoCodes[]=USD&isoCodes[]=EUR"
 RATES_HEADERS = {
     'user-agent': 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36'}
 
@@ -19,20 +19,20 @@ async def get_rates():
     global RATES_UPDATE
     if 'EUR' in RATES and 'USD' in RATES:
         if RATES_UPDATE:
-            if RATES_UPDATE + timedelta(hours=8) >= datetime.utcnow():
+            if RATES_UPDATE + timedelta(hours=3) >= datetime.utcnow():
                 return RATES
 
     fetched_rates = await fetch_rates()
     try:
-        usd_price = fetched_rates['base']['840']['0']['sellValue']
+        usd_price = fetched_rates['USD']['rateList'][0]['rateSell']
     except KeyError:
         log.exception(f'Error fetching price', exc_info=True)
-        usd_price = 73.08
+        usd_price = 77.39
     try:
-        eur_price = fetched_rates['base']['978']['0']['sellValue']
+        eur_price = fetched_rates['EUR']['rateList'][0]['rateSell']
     except KeyError:
         log.exception(f'Error fetching price', exc_info=True)
-        eur_price = 86.48
+        eur_price = 82.27
 
     RATES_UPDATE = datetime.utcnow()
     RATES['EUR'] = eur_price
@@ -46,7 +46,7 @@ async def get_rates():
 async def fetch_rates():
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(RATES_URL, params=RATES_PARAMS, headers=RATES_HEADERS) as resp:
+            async with session.get(RATES_URL, headers=RATES_HEADERS) as resp:
                 r = await resp.json()
                 return r
     except (aiohttp.client_exceptions.ClientError, ValueError) as e:
