@@ -4,7 +4,7 @@ import pkgutil
 
 log = logging.getLogger(__name__)
 
-REQUIREMENT_SEPARATOR = '::'
+REQUIREMENT_SEPARATOR = "::"
 
 
 class PackagesLoader:
@@ -30,9 +30,9 @@ class PackagesLoader:
         results = {full_name: package}
 
         for pkg_loader, name, is_pkg in pkgutil.walk_packages(package.__path__):
-            full_name = package.__name__ + '.' + name
+            full_name = package.__name__ + "." + name
             module = self.modules[full_name] = results[full_name] = importlib.import_module(full_name)
-            if hasattr(module, 'includeme') and callable(module.includeme):
+            if hasattr(module, "includeme") and callable(module.includeme):
                 module.includeme()
 
             if recursive and is_pkg:

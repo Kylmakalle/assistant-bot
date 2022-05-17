@@ -14,7 +14,7 @@ from mixpanel import Mixpanel
 
 logging.basicConfig(level=logging.INFO)
 
-log = logging.getLogger('assistant')
+log = logging.getLogger("assistant")
 
 loop = asyncio.get_event_loop()
 
@@ -25,7 +25,7 @@ runner = Executor(dp, skip_updates=config.skip_updates)
 
 loader = PackagesLoader()
 
-dp.middleware.setup(LoggingMiddleware('bot'))
+dp.middleware.setup(LoggingMiddleware("bot"))
 
 mp = Mixpanel(config.mixpanel_key)
 

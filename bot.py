@@ -5,7 +5,7 @@ from core.load import load_modules
 
 
 async def startup_webhook(dp: Dispatcher):
-    misc.log.info('Start webhook')
+    misc.log.info("Start webhook")
     await dp.bot.set_webhook(config.webhook_url)
 
 
@@ -32,5 +32,5 @@ def main():
         misc.runner.start_polling(timeout=0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
