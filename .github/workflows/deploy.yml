@@ -1,0 +1,90 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+env:
+  DOCKER_TAG: 'kylmakalle/assistant-bot:latest'
+  DOCKER_REGISTRY: 'ghcr.io'
+  DOCKER_USERNAME: 'Kylmakalle'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          token: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
+      - name: Build Docker
+        run: docker build --tag $DOCKER_REGISTRY/$DOCKER_TAG .
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ secrets.CR_PAT }}
+          registry: ${{ env.DOCKER_REGISTRY }}
+      - name: Push Image
+        run: docker image push $DOCKER_REGISTRY/$DOCKER_TAG
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [build]
+    env:
+      DEPLOYMENT_PATH: "${{ github.event.repository.name }}/"
+    steps:
+      - name: Create SSH key
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          host="${{ secrets.SSH_HOST }}"
+          hosts="$(dig +short "$host" | grep -v '\.$' | sed -z 's|\n|,|g')$host"
+          ssh-keyscan -H "$hosts" > ~/.ssh/known_hosts
+      - name: Stop docker-compose
+        run: |
+          if ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "[ -d ${{ env.DEPLOYMENT_PATH }} ]"; then
+              echo "Deploy dir found, stopping compose!"
+              ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEPLOYMENT_PATH }} && docker-compose -p assistant-bot -f private/docker-compose.yml down"
+          else
+              echo "Deploy dir not found, creating..."
+              ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir -p ${{ env.DEPLOYMENT_PATH }}"
+          fi
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          token: ${{ secrets.PRIVATE_ACCESS_TOKEN }}
+      - name: Deploy with rsync
+        run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ env.DEPLOYMENT_PATH }}
+      - name: docker login
+        run: ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.CR_RO_PAT }} | docker login ${{ env.DOCKER_REGISTRY }} -u ${{ env.DOCKER_USERNAME }} --password-stdin"
+      - name: docker-compose up
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
+            cd ${{ env.DEPLOYMENT_PATH }} && \
+            BOT_TOKEN=\"${{ secrets.BOT_TOKEN }}\" \
+            MONGODB_HOST=\"${{ secrets.MONGODB_HOST }}\" \
+            MIXPANEL_KEY=\"${{ secrets.MIXPANEL_KEY }}\" \
+            LOG_CHANNEL=\"${{ secrets.LOG_CHANNEL }}\" \
+            EDIT_MEDIA_LOG_CHANNEL=\"${{ secrets.EDIT_MEDIA_LOG_CHANNEL }}\" \
+            SENTRY_URL=\"${{ secrets.SENTRY_URL }}\" \
+            CLARIFAI_TOKEN=\"${{ secrets.CLARIFAI_TOKEN }}\" \
+            docker-compose -p assistant-bot -f private/docker-compose.yml up -d
+          "
+          exit $?
+      - name: Log deployment
+        run: sleep 15 && ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ env.DEPLOYMENT_PATH }} && docker-compose -p assistant-bot -f private/docker-compose.yml logs --tail 200"
+
+      - name: Notify to Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_NOTIFICATION_CHANNEL }}
+          token: ${{ secrets.TELEGRAM_BOT_NOTIFICATION_TOKEN }}
+          format: markdown
+          message: |
+            [${{ github.repository }}](https://github.com/${{ github.repository }}) Deployed to `${{ secrets.SSH_HOST }}`
+            • [Commit ${{github.sha}}](https://github.com/${{ github.repository }}/commit/${{github.sha}})
+            • [Workflow ${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ${{ github.event.commits[0].message }}
