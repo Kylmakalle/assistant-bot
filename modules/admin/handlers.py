@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta, datetime
 from typing import Optional
 
@@ -270,7 +271,7 @@ async def ban_sender_chat(message: types.Message, target: Optional[types.Chat] =
     try:  # Apply restriction
         await message.chat.ban_sender_chat(sender_chat_id=target.id)
     except Exception as e:
-        print(f"Failed to restrict chat member: {e}")
+        logging.error(f"Failed to restrict chat member: {e}")
         return False
     await to_message.answer(
         get_admin_report_response() + f"Канал {target.mention} заблокирован, "
