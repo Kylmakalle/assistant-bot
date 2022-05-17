@@ -9,6 +9,7 @@ certifi
 https://github.com/Kylmakalle/clarifai-python/archive/master.zip
 motor==2.3.1
 multidict==5.1.0
+protobuf==3.19.4
 pymongo==3.11.3
 pytz
 sentry-sdk==1.0.0
