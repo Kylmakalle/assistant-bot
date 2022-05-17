@@ -44,7 +44,13 @@ class RedditImageSearcher:
                 if image_dict["e"] != "Image":
                     continue
                 photo_url = image_dict["s"]["u"]
-            result.append({"photo": photo_url, "title": submission.title, "reddit_url": submission.permalink})
+            result.append(
+                {
+                    "photo": photo_url,
+                    "title": submission.title,
+                    "reddit_url": f"https://reddit.com{submission.permalink}",
+                }
+            )
         return result
 
     @staticmethod
