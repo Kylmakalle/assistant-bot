@@ -52,7 +52,7 @@ async def cmd_amd_build(m: types.Message, user: dict, chat: dict):
     sent = await m.reply(hitalic(random.choice(init_msgs) + "..."), reply=False)
 
     try:
-        build = random.choice(await reddit_searcher.get_images_for_flair("Amd", "Battlestation", limit=100))
+        build = random.choice(await reddit_searcher.get_images_for_flair("Amd", "Battlestation", limit=200))
     except Exception:
         logging.error("Unable to get build", exc_info=True)
         build = None
