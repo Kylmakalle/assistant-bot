@@ -1,12 +1,12 @@
-from aiogram.utils.markdown import hitalic
+import random
+
 from aiogram import types
-from modules.voteban.views import screen_name
+from aiogram.utils.markdown import hitalic
 
 from core.misc import dp, mp
-from modules.amd_builds.utils import get_build
 from modules.amd_builds.consts import StatsEvents
-
-import random
+from modules.amd_builds.utils import RedditImageSearcher
+from modules.voteban.views import screen_name
 
 init_msgs = (
     "Звоним Лизе Су",
@@ -32,6 +32,8 @@ error_msgs = (
 
 build_template = '<a href="{link}">&#8203;</a><b>{title}</b>\nu/{user}\n<a href="{reddit_url}">Reddit</a>'
 
+reddit_searcher = RedditImageSearcher()
+
 
 @dp.message_handler(commands=["amd", "build", "reddit"])
 async def cmd_amd_build(m: types.Message, user: dict, chat: dict):
@@ -49,7 +51,7 @@ async def cmd_amd_build(m: types.Message, user: dict, chat: dict):
     sent = await m.reply(hitalic(random.choice(init_msgs) + "..."), reply=False)
 
     try:
-        build = await get_build(amount=150)
+        build = random.choice(await reddit_searcher.get_images_for_flair("Amd", "Battlestation", limit=100))
     except Exception:
         build = None
 

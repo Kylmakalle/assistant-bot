@@ -1,6 +1,6 @@
+import logging
 import os
 import pathlib
-import logging
 
 log = logging.getLogger("config")
 
@@ -63,3 +63,12 @@ if os.path.isfile(whitelist_file_path):
             allowed_chats = [chat.rstrip() for chat in allowed_chats]
     except Exception:
         log.exception("Cant read whitelist file", exc_info=True)
+
+# Reddit
+reddit_config = {
+    "client_id": get_value("REDDIT_CLIENT_ID", ""),
+    "client_secret": get_value("REDDIT_CLIENT_SECRET", ""),
+    "password": get_value("REDDIT_PASSWORD", ""),
+    "user_agent": get_value("REDDIT_USER_AGENT", ""),
+    "username": get_value("REDDIT_USERNAME", ""),
+}
