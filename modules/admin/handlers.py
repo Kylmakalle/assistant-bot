@@ -17,6 +17,7 @@ from modules.admin.utils import get_time_args, format_seconds, get_restrict_text
 from modules.admin.utils import get_user_id, can_user_ban
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import LogEvents, get_admin_report_response
+from modules.voteban.views import screen_name
 
 KICK_STICKERS = (
     # daykick
@@ -148,7 +149,7 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
 
                 ban_user = await db.users.find_one({"id": uid})
 
-                await m.reply("Пользователь был забанен. Спасибо!")
+                await m.reply(f"Пользователь {screen_name(ban_user, True)} был забанен. Спасибо!")
                 await add_log(chat["id"], uid, LogEvents.BAN, by=m.from_user.id)
                 await log(event=LogEvents.BAN, chat=chat, user=ban_user, message_id=m.message_id, admin=user)
                 await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)

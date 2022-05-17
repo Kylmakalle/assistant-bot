@@ -73,7 +73,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
             await bot.kick_chat_member(chat["id"], vote_user["id"])
         except Exception:
             pass
-        await m.reply("Пользователь был забанен и помечен как спамер. Спасибо!")
+        await m.reply(f"Пользователь {screen_name(vote_user, True)} был забанен и помечен как спамер. Спасибо!")
         try:
             await bot.delete_message(m.chat.id, m.reply_to_message.message_id)
         except Exception:
