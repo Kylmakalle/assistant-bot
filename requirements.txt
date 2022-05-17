@@ -13,7 +13,7 @@ protobuf==3.19.4
 pymongo==3.11.3
 pytz
 sentry-sdk==1.0.0
-ujson==4.0.2
+ujson==5.1.0
 uvloop==0.15.2
 durations==0.3.3
 
