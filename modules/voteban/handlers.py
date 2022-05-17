@@ -10,7 +10,7 @@ from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
 from modules.admin.handlers import cmd_tempban, ban_sender_chat
-from modules.admin.utils import get_time_args
+from modules.admin.utils import get_time_args, can_user_ban
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents, get_admin_report_response
 from modules.voteban.views import render_voteban_kb, screen_name
@@ -49,9 +49,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         await m.reply("Не могу получить информацию о юзере.")
         return
 
-    if (
-            user_request.can_restrict_members or user_request.status == "creator" or user.get("status", 0) >= 3
-    ) and not vote_user.is_bot:
+    if can_user_ban(user_request, user) and not vote_user.is_bot:
         check_cmd = m.text.replace("!", "").replace("/", "").replace("#", "")
         if (check_cmd or "").lower().startswith("report"):
             await cmd_fun_report(m, user, chat)
@@ -86,9 +84,9 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
     else:
         if m.from_user.id == vote_user.id:
             if (
-                    user_request.can_send_media_messages
-                    and user_request.can_send_other_messages
-                    and user_request.can_add_web_page_previews
+                user_request.can_send_media_messages
+                and user_request.can_send_other_messages
+                and user_request.can_add_web_page_previews
             ):
                 await m.reply("Ну ты сам напросился")
                 try:
@@ -120,7 +118,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
             await m.reply("Пользователя нет в чате.")
             return
 
-        if user_in_chat.can_restrict_members or user_in_chat.status == "creator" or user.get("status", 0) >= 3:
+        if can_user_ban(user_in_chat, user):
             await m.reply(f"{hitalic('Баню пользователя')} {screen_name(m.from_user)} =)")
             return
 
@@ -164,7 +162,7 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
         user_request = await bot.get_chat_member(chat["id"], c.from_user.id)
     except Exception:
         return
-    if user_request.can_restrict_members or user_request.status == "creator" or user.get("status", 0) >= 3:
+    if can_user_ban(user_request, user):
         if voteban["active"]:
             vote_user = await db.users.find_one({"id": int(callback_data["user_id"])})
             vote_user.update({"spamer": 1.0})

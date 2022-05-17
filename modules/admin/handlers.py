@@ -14,7 +14,7 @@ from core.misc import bot, dp, mp
 from core.stats import StatsEvents
 from modules.admin.consts import unban_cb
 from modules.admin.utils import get_time_args, format_seconds, get_restrict_text, get_next_day_msk
-from modules.admin.utils import get_user_id
+from modules.admin.utils import get_user_id, can_user_ban
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import LogEvents, get_admin_report_response
 
@@ -52,9 +52,7 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
         await m.reply("Не могу получить информацию о юзере.")
         return
 
-    if (
-        user_request.can_restrict_members or user_request.status == "creator" or user.get("status", 0) >= 3
-    ) and not kick_user.is_bot:
+    if can_user_ban(user_request, user) and not kick_user.is_bot:
         kick_user = kick_user.to_python()
 
         try:
@@ -106,7 +104,7 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
             await m.reply("Пользователя нет в чате.")
             return
 
-        if user_in_chat.can_restrict_members or user_in_chat.status == "creator" or user.get("status", 0) >= 3:
+        if can_user_ban(user_in_chat, user):
             await m.reply("Слыш")
             return
 
@@ -135,7 +133,7 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
     except Exception:
         await m.reply("Не могу получить информацию о юзере.")
         return
-    if user_request.can_restrict_members or user_request.status == "creator" or user.get("status", 0) >= 3:
+    if can_user_ban(user_request, user):
         try:
             uid = await get_user_id(m)
         except Exception:
@@ -188,7 +186,7 @@ async def timed_restriction(m: types.Message, user: dict, chat: dict, action="ba
     except Exception:
         await m.reply("Не могу получить информацию о юзере.")
         return
-    if not (user_request.can_restrict_members or user_request.status == "creator" or user.get("status", 0) >= 3):
+    if not can_user_ban(user_request, user):
         return await m.reply("Ты куда лезишь?")
 
     chat_id = chat["id"]

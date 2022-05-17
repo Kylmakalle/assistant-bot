@@ -7,7 +7,7 @@ def load_modules():
     try:
         misc.loader.load_package("private.modules")
     except (ImportError, ModuleNotFoundError) as e:
-        logging.warning(f'Unable to load private modules, {e}')
+        logging.warning(f"Unable to load private modules, {e}")
     misc.loader.load_packages(
         f"modules.{item}"
         for item in [
