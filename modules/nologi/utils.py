@@ -7,9 +7,10 @@ import aiohttp.client_exceptions
 
 log = logging.getLogger('nologi')
 
-RATES_URL = "https://www.sberbank.ru/proxy/services/rates/public/actual?rateType=ERNP-2&isoCodes[]=USD&isoCodes[]=EUR"
+RATES_URL = "https://api.tinkoff.ru/v1/currency_rates?from={0}&to=RUB"
 RATES_HEADERS = {
-    'user-agent': 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36'}
+    'user-agent': 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36',
+}
 
 RATES_UPDATE = None
 RATES = {}
@@ -24,31 +25,35 @@ async def get_rates():
 
     fetched_rates = await fetch_rates()
     try:
-        usd_price = fetched_rates['USD']['rateList'][0]['rateSell']
+        usd_price = fetched_rates['USD']['sell']
     except KeyError:
         log.exception(f'Error fetching price', exc_info=True)
-        usd_price = 77.39
+        usd_price = 69
     try:
-        eur_price = fetched_rates['EUR']['rateList'][0]['rateSell']
+        eur_price = fetched_rates['EUR']['sell']
     except KeyError:
         log.exception(f'Error fetching price', exc_info=True)
-        eur_price = 82.27
+        eur_price = 72.4
 
     RATES_UPDATE = datetime.utcnow()
     RATES['EUR'] = eur_price
     RATES['USD'] = usd_price
     RATES['RUB'] = 1.0
     RATES['RUR'] = 1.0
-
     return RATES
 
 
-async def fetch_rates():
+async def fetch_rates() -> dict:
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(RATES_URL, headers=RATES_HEADERS) as resp:
-                r = await resp.json()
-                return r
+            result = {}
+            for currency in ('USD', 'EUR'):
+                async with session.get(RATES_URL.format(currency), headers=RATES_HEADERS) as resp:
+                    response_json = await resp.json()
+                    result[currency] = next(
+                        (item for item in response_json['payload']['rates'] if item["category"] == "DepositPayments"),
+                        None)
+            return result
     except (aiohttp.client_exceptions.ClientError, ValueError) as e:
         log.error(f'Error fetching prices {e}')
         return {}

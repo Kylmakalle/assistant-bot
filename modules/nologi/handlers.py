@@ -21,7 +21,7 @@ async def cmd_nolog(m: types.Message, user: dict, chat: dict):
 
     available_curs = "Доступные валюты: <b>EUR, USD, RUB/RUR</b>"
     about = "\n" + hitalic(
-        "По курсу Сбербанка. Цена товара должна быть без учёта доставки. Посылки тяжелее 31кг считаются отдельно!") + " " + \
+        "По курсу Жёлтого банка. Цена товара без учёта доставки. Посылки тяжелее 31кг считаются отдельно!") + " " + \
             hlink("Подробнее", "https://qwintry.com/ru/duty-calc")
 
     text = text + cmd + example_cmd + available_curs + about
