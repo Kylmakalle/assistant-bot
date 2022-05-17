@@ -130,7 +130,7 @@ async def get_user_id(m: types.Message):
 
 def can_user_ban(user: types.ChatMember, db_user: dict) -> bool:
     return (
-        isinstance(user, (types.ChatMemberMember, types.ChatMemberOwner))
+        isinstance(user, (types.ChatMemberAdministrator, types.ChatMemberOwner))
         and user.can_restrict_members
         or user.status == "creator"
         or db_user.get("status", 0) >= 3
