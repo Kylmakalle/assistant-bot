@@ -71,11 +71,11 @@ jobs:
             EDIT_MEDIA_LOG_CHANNEL=\"${{ secrets.EDIT_MEDIA_LOG_CHANNEL }}\" \
             SENTRY_URL=\"${{ secrets.SENTRY_URL }}\" \
             CLARIFAI_TOKEN=\"${{ secrets.CLARIFAI_TOKEN }}\" \
-            REDDIT_CLIENT_ID=\"${{ secrets.REDDIT_CLIENT_ID }} \" \
-            REDDIT_CLIENT_SECRET=\"${{ secrets.REDDIT_CLIENT_SECRET }} \" \
-            REDDIT_PASSWORD=\"${{ secrets.REDDIT_PASSWORD }} \" \
-            REDDIT_USER_AGENT=\"${{ secrets.REDDIT_USER_AGENT }} \" \
-            REDDIT_USERNAME=\"${{ secrets.REDDIT_USERNAME }} \" \
+            REDDIT_CLIENT_ID=\"${{ secrets.REDDIT_CLIENT_ID }}\" \
+            REDDIT_CLIENT_SECRET=\"${{ secrets.REDDIT_CLIENT_SECRET }}\" \
+            REDDIT_PASSWORD=\"${{ secrets.REDDIT_PASSWORD }}\" \
+            REDDIT_USER_AGENT=\"${{ secrets.REDDIT_USER_AGENT }}\" \
+            REDDIT_USERNAME=\"${{ secrets.REDDIT_USERNAME }}\" \
             docker-compose -p assistant-bot -f private/docker-compose.yml up -d
           "
           exit $?
