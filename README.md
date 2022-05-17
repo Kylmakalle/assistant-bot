@@ -40,6 +40,24 @@ MONGODB_MAX_POOL_SIZE=1000
 MONGODB_RETRY_WRITES=1
 ```
 
+# Develop
+Setup environment
+```bash
+pip install -r requirements-dev.txt
+```
+
+## Linters and formatters
+
+For staged files
+```bash
+pre-commit run
+```
+
+for all files
+```bash
+pre-commit run --all-files
+```
+
 # Author
 https://t.me/Kylmakalle
 

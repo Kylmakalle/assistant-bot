@@ -8,6 +8,8 @@ services:
     environment:
     - MONGO_DATA_DIR=/data/db
     - MONGO_LOG_DIR=/dev/null
+    ports:
+      - 127.0.0.1:27017:27017
     volumes:
     - dbdata:/data/db
     command: mongod --smallfiles --logpath=/dev/null # --quiet
