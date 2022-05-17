@@ -1,3 +1,4 @@
+import logging
 import random
 
 from aiogram import types
@@ -53,6 +54,7 @@ async def cmd_amd_build(m: types.Message, user: dict, chat: dict):
     try:
         build = random.choice(await reddit_searcher.get_images_for_flair("Amd", "Battlestation", limit=100))
     except Exception:
+        logging.error("Unable to get build", exc_info=True)
         build = None
 
     if not build:
