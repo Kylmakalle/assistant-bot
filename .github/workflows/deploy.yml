@@ -63,6 +63,7 @@ jobs:
         run: |
           ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "
             cd ${{ env.DEPLOYMENT_PATH }} && \
+            docker-compose -p assistant-bot -f private/docker-compose.yml pull && \
             BOT_TOKEN=\"${{ secrets.BOT_TOKEN }}\" \
             MONGODB_HOST=\"${{ secrets.MONGODB_HOST }}\" \
             MIXPANEL_KEY=\"${{ secrets.MIXPANEL_KEY }}\" \
