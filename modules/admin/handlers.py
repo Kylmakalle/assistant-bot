@@ -274,9 +274,10 @@ async def ban_sender_chat(message: types.Message, target: Optional[types.Chat] =
         await message.chat.ban_sender_chat(sender_chat_id=target.id)
     except Exception as e:
         logging.error(f"Failed to restrict chat member: {e}")
-        return False
+        await message.reply("штото пошло не так :((")
+        return True
     await to_message.answer(
-        get_admin_report_response() + f"Канал {target.mention} заблокирован, "
+        hbold(get_admin_report_response()) + f" Канал {target.mention} заблокирован, "
         f"его владелец больше не сможет писать от имени любого из своих каналов в этом чате."
     )
     return True

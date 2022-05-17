@@ -9,7 +9,7 @@ from core.db import db, ReturnDocument
 from core.log import log
 from core.misc import bot, dp, mp
 from core.stats import StatsEvents
-from modules.admin.handlers import cmd_tempban
+from modules.admin.handlers import cmd_tempban, ban_sender_chat
 from modules.admin.utils import get_time_args
 from modules.captcha_button.handlers import add_log
 from modules.voteban.consts import voter, LogEvents, get_admin_report_response
@@ -40,6 +40,8 @@ async def cmd_fun_report(m: types.Message, user: dict, chat: dict):
     commands_prefix="!/#",
 )
 async def cmd_report(m: types.Message, user: dict, chat: dict):
+    if m.reply_to_message.sender_chat and await ban_sender_chat(m):
+        return
     vote_user = m.reply_to_message.from_user
     try:
         user_request = await bot.get_chat_member(chat["id"], m.from_user.id)
@@ -48,7 +50,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
         return
 
     if (
-        user_request.can_restrict_members or user_request.status == "creator" or user.get("status", 0) >= 3
+            user_request.can_restrict_members or user_request.status == "creator" or user.get("status", 0) >= 3
     ) and not vote_user.is_bot:
         check_cmd = m.text.replace("!", "").replace("/", "").replace("#", "")
         if (check_cmd or "").lower().startswith("report"):
@@ -84,9 +86,9 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
     else:
         if m.from_user.id == vote_user.id:
             if (
-                user_request.can_send_media_messages
-                and user_request.can_send_other_messages
-                and user_request.can_add_web_page_previews
+                    user_request.can_send_media_messages
+                    and user_request.can_send_other_messages
+                    and user_request.can_add_web_page_previews
             ):
                 await m.reply("Ну ты сам напросился")
                 try:
