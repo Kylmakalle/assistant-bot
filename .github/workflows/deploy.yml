@@ -83,6 +83,7 @@ jobs:
           to: ${{ secrets.TELEGRAM_NOTIFICATION_CHANNEL }}
           token: ${{ secrets.TELEGRAM_BOT_NOTIFICATION_TOKEN }}
           format: markdown
+          disable_web_page_preview: true
           message: |
             [${{ github.repository }}](https://github.com/${{ github.repository }}) Deployed to `${{ secrets.SSH_HOST }}`
             • [Commit ${{github.sha}}](https://github.com/${{ github.repository }}/commit/${{github.sha}})
