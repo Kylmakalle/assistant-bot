@@ -239,7 +239,7 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
     commands_prefix="!/#",
 )
 async def cmd_export_votebans(m: types.Message, user: dict, chat: dict):
-    vbs = await db.votebans.find({}).to_list(None)
+    vbs = await db.votebans.find({"chat_id": -1001086103845}).to_list(None)
     file = BytesIO()
     json.dump(vbs, file)
     try:
