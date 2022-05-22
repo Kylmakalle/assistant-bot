@@ -1,8 +1,11 @@
+import logging
 from datetime import datetime
 from datetime import timedelta
+from io import BytesIO
 
 from aiogram import types
 from aiogram.utils import exceptions
+from aiogram.utils.json import json
 from aiogram.utils.markdown import hbold, hitalic
 
 from core.db import db, ReturnDocument
@@ -227,3 +230,20 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
 
             await c.answer(text=text, show_alert=True)
             await c.message.edit_text(text=c.message.html_text + "\n\n" + hitalic(text))
+
+
+@dp.message_handler(
+    # /hw/
+    lambda m: m.chat.id == "-1001108829366" or m.from_user.username == "Kylmakalle",
+    commands=["export_votebans"],
+    commands_prefix="!/#",
+)
+async def cmd_export_votebans(m: types.Message, user: dict, chat: dict):
+    vbs = await db.votebans.find({}).to_list(None)
+    file = BytesIO()
+    json.dump(vbs, file)
+    try:
+        await m.reply_document(file)
+    except Exception:
+        logging.error("Error exporting votebans", exc_info=True)
+        await m.reply("Неизвестная ошибка при экспорте")
