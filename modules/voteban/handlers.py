@@ -240,12 +240,21 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
     commands_prefix="!/#",
 )
 async def cmd_export_votebans(m: types.Message, user: dict, chat: dict):
-    await m.reply(hitalic("Начинаю экспорт..."))
+    start_message = await m.reply(hitalic("Начинаю экспорт..."))
     vbs = await db.votebans.find({"chat_id": -1001086103845}).to_list(None)
-    file = BytesIO()
-    json.dump(_json_convert(vbs), file)
+    converted_vbs = _json_convert(vbs)
+
     try:
-        await m.reply_document(file)
+        with BytesIO() as file:
+            file.write(json.dumps(converted_vbs, ensure_ascii=False).encode())
+            file.name = "hw_votebans.json"
+            file.seek(0)
+            await m.reply_document(file)
     except Exception:
-        logging.error("Error exporting votebans", exc_info=True)
+        logging.exception("Error exporting votebans")
         await m.reply("Неизвестная ошибка при экспорте")
+
+    try:
+        await start_message.delete()
+    except Exception:
+        pass
