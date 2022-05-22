@@ -7,6 +7,7 @@ from aiogram import types
 from aiogram.utils import exceptions
 from aiogram.utils.json import json
 from aiogram.utils.markdown import hbold, hitalic
+from bson.json_util import _json_convert
 
 from core.db import db, ReturnDocument
 from core.log import log
@@ -241,7 +242,7 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
 async def cmd_export_votebans(m: types.Message, user: dict, chat: dict):
     vbs = await db.votebans.find({"chat_id": -1001086103845}).to_list(None)
     file = BytesIO()
-    json.dump(vbs, file)
+    json.dump(_json_convert(vbs), file)
     try:
         await m.reply_document(file)
     except Exception:
