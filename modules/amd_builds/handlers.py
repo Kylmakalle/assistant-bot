@@ -45,7 +45,9 @@ async def cmd_amd_build(m: types.Message, *args, **kwargs):
 @dp.message_handler(commands=["intel", "intel_reddit", "intel_build"])
 async def cmd_intel_build(m: types.Message, *args, **kwargs):
     if not m.from_user.is_premium:
-        await m.reply("Команда доступна только для Premium ⭐️ пользователей. Приобрети через: @PremiumBot")
+        await m.reply(
+            "Команда доступна только для Premium ⭐️ пользователей. Приобрети через: @PremiumBot или посмотри свою /amd сборку"
+        )
         return
     return await cmd_reddit_build(
         m,
