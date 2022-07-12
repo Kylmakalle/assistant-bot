@@ -127,8 +127,6 @@ async def cmd_kick(m: types.Message, user: dict, chat: dict):
     commands_prefix="!/#",
 )
 async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
-    if m.reply_to_message.sender_chat and await ban_sender_chat(m):
-        return
     try:
         user_request = await bot.get_chat_member(chat["id"], m.from_user.id)
     except Exception:
