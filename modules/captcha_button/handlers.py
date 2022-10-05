@@ -39,7 +39,7 @@ async def kick_timer(chat_id, user, messages_to_delete):
     await sleep(kick_delay)
     captcha_passed_action = await get_user_captcha_passed(user["id"], chat_id)
     if not captcha_passed_action:
-        await bot.kick_chat_member(chat_id, user["id"])
+        await bot.ban_chat_member(chat_id, user["id"])
         await bot.unban_chat_member(chat_id, user["id"])
         await add_log(chat_id, user["id"], LogEvents.CAPTCHA_TIMEOUT)
         for message in messages_to_delete:

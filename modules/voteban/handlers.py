@@ -74,7 +74,7 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
             {"$set": {"active": False, "confirmed": True, "closed_datetime": datetime.utcnow()}},
         )
         try:
-            await bot.kick_chat_member(chat["id"], vote_user["id"])
+            await bot.ban_chat_member(chat["id"], vote_user["id"])
         except Exception:
             pass
         await m.reply(f"Пользователь {screen_name(vote_user, True)} был забанен и помечен как спамер. Спасибо!")
@@ -180,7 +180,7 @@ async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data
                 {"$set": {"active": False, "confirmed": True, "closed_datetime": datetime.utcnow()}},
             )
             try:
-                await bot.kick_chat_member(int(callback_data["chat_id"]), int(callback_data["user_id"]))
+                await bot.ban_chat_member(int(callback_data["chat_id"]), int(callback_data["user_id"]))
             except Exception:
                 await c.answer(text="Возникла ошибка при попытке забанить пользователя.", show_alert=True)
                 return

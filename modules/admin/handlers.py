@@ -56,11 +56,8 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
     if can_user_ban(user_request, user) and not kick_user.is_bot:
         kick_user = kick_user.to_python()
 
-        try:
-            await bot.kick_chat_member(chat["id"], kick_user["id"])
-            await bot.unban_chat_member(chat["id"], kick_user["id"])
-        except Exception:
-            pass
+        await bot.ban_chat_member(chat["id"], kick_user["id"])
+        await bot.unban_chat_member(chat["id"], kick_user["id"])
 
         await bot.send_message(
             chat["id"],
@@ -80,7 +77,7 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
             ):
                 await m.reply("Ну ты сам напросился")
                 try:
-                    await bot.kick_chat_member(chat["id"], kick_user["id"])
+                    await bot.ban_chat_member(chat["id"], kick_user["id"])
                     await bot.unban_chat_member(chat["id"], kick_user["id"])
                 except Exception:
                     pass
@@ -141,7 +138,7 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
         if uid != (await bot.get_me()).id:
             if uid:
                 try:
-                    await bot.kick_chat_member(chat["id"], uid)
+                    await bot.ban_chat_member(chat["id"], uid)
                 except Exception:
                     pass
 
