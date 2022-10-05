@@ -56,8 +56,17 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
     if can_user_ban(user_request, user) and not kick_user.is_bot:
         kick_user = kick_user.to_python()
 
-        await bot.ban_chat_member(chat["id"], kick_user["id"])
-        await bot.unban_chat_member(chat["id"], kick_user["id"])
+        try:
+            await bot.ban_chat_member(chat["id"], kick_user["id"])
+            await bot.unban_chat_member(chat["id"], kick_user["id"])
+        except Exception:
+            # Expected
+            await bot.send_message(
+                chat["id"],
+                "Пользователь «кикнут». Спасибо за свободное общение!",
+                reply_to_message_id=m.reply_to_message.message_id,
+            )
+            return
 
         await bot.send_message(
             chat["id"],
@@ -67,7 +76,7 @@ async def cmd_kick_reply(m: types.Message, user: dict, chat: dict):
 
         await add_log(chat["id"], kick_user["id"], LogEvents.KICK, by=m.from_user.id)
         await log(event=LogEvents.KICK, chat=chat, user=kick_user, message_id=m.message_id, admin=user)
-        await mp.track(m.from_user.id, StatsEvents.ADMIN_BAN, m)
+        await mp.track(m.from_user.id, StatsEvents.ADMIN_KICK, m)
     else:
         if m.from_user.id == kick_user.id:
             if (
