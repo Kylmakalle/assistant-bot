@@ -95,10 +95,14 @@ class UpdatesLoggerMiddleware(BaseMiddleware):
         elif update.edited_message:
             from_user = update.edited_message.from_user
             from_chat = update.edited_message.chat
+        else:
+            from_user = None
+            from_chat = None
 
-        data["user"] = await update_user(from_user)
+        if from_user:
+            data["user"] = await update_user(from_user)
 
-        if from_chat.type == "supergroup":
+        if from_chat and from_chat.type == "supergroup":
             chat = await update_chat(from_chat)
 
             data["chat"] = chat

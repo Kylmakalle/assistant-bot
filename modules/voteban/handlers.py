@@ -162,6 +162,10 @@ async def cmd_report(m: types.Message, user: dict, chat: dict):
 @dp.callback_query_handler(voter.filter())
 async def btn_vote(c: types.CallbackQuery, user: dict, chat: dict, callback_data: dict):
     voteban = await get_voteban(int(callback_data["chat_id"]), int(callback_data["user_id"]))
+    if not voteban:
+        await c.answer("Воутбан завершён")
+        await c.message.edit_message_reply_markup(reply_markup=None)
+        return
     try:
         user_request = await bot.get_chat_member(chat["id"], c.from_user.id)
     except Exception:
