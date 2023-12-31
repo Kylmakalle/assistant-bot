@@ -25,6 +25,7 @@ services:
     volumes:
     - ".:/usr/src/bot"
     env_file: .env
+    stop_signal: SIGINT
 
 
 volumes:

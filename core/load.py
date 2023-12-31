@@ -19,6 +19,7 @@ def load_modules():
             "admin",  # Small admin commands
             "nsfw",  # Checking media for nsfw
             "amd_builds",  # AMD Builds from reddit
+            "elka", # Raz.. Dva.. Tri... Elochka, gori!
             "tail",  # Handle all unhandled actions
         ]
     )
