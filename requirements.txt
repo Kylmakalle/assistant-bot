@@ -1,4 +1,4 @@
-aiogram==2.25.2
+aiogram==2.21
 aiohttp==3.8.1
 async-timeout==4.0.1
 attrs==20.3.0
