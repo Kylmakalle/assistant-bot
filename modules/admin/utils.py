@@ -6,7 +6,7 @@ from babel.dates import format_timedelta
 from durations.exceptions import InvalidTokenError
 from durations.helpers import valid_duration
 
-from core import db
+from core.db import db
 
 
 def format_seconds(seconds: int) -> str:
