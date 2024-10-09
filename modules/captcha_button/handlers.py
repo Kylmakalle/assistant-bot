@@ -67,7 +67,7 @@ async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new
         # await add_log(chat['id'], n_c_m['id'], LogEvents.JOINED)
         captcha_passed_action = await get_user_captcha_passed(n_c_m["id"], m.chat.id)
         if not captcha_passed_action:
-            welcome, kb = await get_welcome_message(n_c_m, chat["title"], m.message_id)
+            challenge_id, welcome, kb = await get_welcome_message(n_c_m, chat["title"], m.message_id)
             welcome_msg = await bot.send_message(m.chat.id, welcome, reply_markup=kb)
             await bot.restrict_chat_member(
                 m.chat.id,
@@ -77,6 +77,7 @@ async def new_chat_members_handler(m: types.Message, user: dict, chat: dict, new
                 can_send_other_messages=False,
                 can_add_web_page_previews=False,
             )
+            await db.c_challenges.update_one({'_id': ObjectId(challenge_id)}, {'$set': {'welcome_msg': welcome_msg.to_python()}})
             passed_updates = await get_user_msgs_to_delete_date(
                 m.chat.id, n_c_m["id"], int(m.date.timestamp()), m.message_id
             )

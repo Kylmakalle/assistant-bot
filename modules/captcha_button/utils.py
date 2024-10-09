@@ -48,7 +48,7 @@ async def get_welcome_message(user, title, join_msg_id):
             for emoji in emojis
         ]
     )
-    return sample_welcome_message, kb
+    return challenge.inserted_id, sample_welcome_message, kb
 
 
 async def get_user_msgs_to_delete_date(chat_id, user_id, date, ignore_id=None):
