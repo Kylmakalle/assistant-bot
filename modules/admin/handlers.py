@@ -151,7 +151,7 @@ async def cmd_ban_text(m: types.Message, user: dict, chat: dict):
                 except Exception:
                     pass
 
-                ban_user = await db.users.find_one({"id": uid})
+                ban_user = await db.users.find_one({"id": uid}) or {"id": uid, "first_name": f"#id{uid}"}
 
                 await m.reply(f"Пользователь {screen_name(ban_user, True)} был забанен. Спасибо!")
                 await add_log(chat["id"], uid, LogEvents.BAN, by=m.from_user.id)
