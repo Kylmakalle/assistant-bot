@@ -2,14 +2,23 @@ from aiogram import Dispatcher
 
 from core import config, misc
 from core.load import load_modules
+from core.db import db
 
+async def set_db_indexes():
+    await db.updates_v2.create_index(
+        [("_received_at", 1)],
+        name="ttl__received_at__14d",
+        expireAfterSeconds=14 * 24 * 60 * 60 # 14 days
+    )
 
 async def startup_webhook(dp: Dispatcher):
+    await set_db_indexes()
     misc.log.info("Start webhook")
     await dp.bot.set_webhook(config.webhook_url)
 
 
 async def startup_polling(dp: Dispatcher):
+    await set_db_indexes()
     await dp.bot.delete_webhook()
 
 

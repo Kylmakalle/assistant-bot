@@ -84,7 +84,8 @@ class UpdatesLoggerMiddleware(BaseMiddleware):
         u = update.to_python()
         # pprint(u)
         u.update({"_id": u["update_id"]})
-        await db.updates.insert_one(u)
+        u.update({"_received_at": datetime.utcnow()})
+        await db.updates_v2.insert_one(u)
 
         if update.callback_query:
             from_user = update.callback_query.from_user
